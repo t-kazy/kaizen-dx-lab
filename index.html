@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Survey Form</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="container">
+    <div class="survey-card">
+      <!-- Progress Bar -->
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-steps" id="progressSteps"></div>
+      </div>
+
+      <!-- Step 1: Welcome -->
+      <div class="step active" data-step="0">
+        <div class="step-icon">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+          </svg>
+        </div>
+        <h1 class="step-title">ご意見をお聞かせください</h1>
+        <p class="step-description">より良いサービスのために、あなたの声を聞かせてください。<br>所要時間は約2分です。</p>
+        <button class="btn btn-primary btn-start" onclick="nextStep()">
+          アンケートを始める
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Step 2: Satisfaction -->
+      <div class="step" data-step="1">
+        <div class="step-label">Q1 / 5</div>
+        <h2 class="step-title">サービスの満足度を教えてください</h2>
+        <p class="step-description">全体的な満足度を選択してください</p>
+        <div class="emoji-rating" id="satisfactionRating">
+          <button class="emoji-btn" data-value="1" onclick="selectEmoji(this)">
+            <span class="emoji">😞</span>
+            <span class="emoji-label">不満</span>
+          </button>
+          <button class="emoji-btn" data-value="2" onclick="selectEmoji(this)">
+            <span class="emoji">😐</span>
+            <span class="emoji-label">やや不満</span>
+          </button>
+          <button class="emoji-btn" data-value="3" onclick="selectEmoji(this)">
+            <span class="emoji">🙂</span>
+            <span class="emoji-label">普通</span>
+          </button>
+          <button class="emoji-btn" data-value="4" onclick="selectEmoji(this)">
+            <span class="emoji">😊</span>
+            <span class="emoji-label">満足</span>
+          </button>
+          <button class="emoji-btn" data-value="5" onclick="selectEmoji(this)">
+            <span class="emoji">🤩</span>
+            <span class="emoji-label">大満足</span>
+          </button>
+        </div>
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="prevStep()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            戻る
+          </button>
+          <button class="btn btn-primary" onclick="nextStep()" id="step1Next" disabled>
+            次へ
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 3: Features -->
+      <div class="step" data-step="2">
+        <div class="step-label">Q2 / 5</div>
+        <h2 class="step-title">どの機能をよく使いますか？</h2>
+        <p class="step-description">該当するものをすべて選択してください（複数可）</p>
+        <div class="checkbox-group" id="featuresGroup">
+          <label class="checkbox-card" onclick="toggleCheckbox(this)">
+            <div class="checkbox-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="4"/>
+                <path d="M9 12l2 2 4-4" class="check-mark"/>
+              </svg>
+            </div>
+            <div class="checkbox-content">
+              <span class="checkbox-title">ダッシュボード</span>
+              <span class="checkbox-desc">データの可視化・分析</span>
+            </div>
+          </label>
+          <label class="checkbox-card" onclick="toggleCheckbox(this)">
+            <div class="checkbox-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="4"/>
+                <path d="M9 12l2 2 4-4" class="check-mark"/>
+              </svg>
+            </div>
+            <div class="checkbox-content">
+              <span class="checkbox-title">レポート作成</span>
+              <span class="checkbox-desc">自動レポート生成</span>
+            </div>
+          </label>
+          <label class="checkbox-card" onclick="toggleCheckbox(this)">
+            <div class="checkbox-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="4"/>
+                <path d="M9 12l2 2 4-4" class="check-mark"/>
+              </svg>
+            </div>
+            <div class="checkbox-content">
+              <span class="checkbox-title">チームコラボ</span>
+              <span class="checkbox-desc">リアルタイム共同編集</span>
+            </div>
+          </label>
+          <label class="checkbox-card" onclick="toggleCheckbox(this)">
+            <div class="checkbox-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="4"/>
+                <path d="M9 12l2 2 4-4" class="check-mark"/>
+              </svg>
+            </div>
+            <div class="checkbox-content">
+              <span class="checkbox-title">API連携</span>
+              <span class="checkbox-desc">外部サービス接続</span>
+            </div>
+          </label>
+          <label class="checkbox-card" onclick="toggleCheckbox(this)">
+            <div class="checkbox-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="4"/>
+                <path d="M9 12l2 2 4-4" class="check-mark"/>
+              </svg>
+            </div>
+            <div class="checkbox-content">
+              <span class="checkbox-title">通知・アラート</span>
+              <span class="checkbox-desc">カスタム通知設定</span>
+            </div>
+          </label>
+        </div>
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="prevStep()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            戻る
+          </button>
+          <button class="btn btn-primary" onclick="nextStep()">
+            次へ
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: NPS -->
+      <div class="step" data-step="3">
+        <div class="step-label">Q3 / 5</div>
+        <h2 class="step-title">友人や同僚に勧めたいですか？</h2>
+        <p class="step-description">0（全く勧めない）〜 10（強く勧める）で評価してください</p>
+        <div class="nps-scale" id="npsScale">
+          <div class="nps-buttons">
+            <button class="nps-btn" data-value="0" onclick="selectNps(this)">0</button>
+            <button class="nps-btn" data-value="1" onclick="selectNps(this)">1</button>
+            <button class="nps-btn" data-value="2" onclick="selectNps(this)">2</button>
+            <button class="nps-btn" data-value="3" onclick="selectNps(this)">3</button>
+            <button class="nps-btn" data-value="4" onclick="selectNps(this)">4</button>
+            <button class="nps-btn" data-value="5" onclick="selectNps(this)">5</button>
+            <button class="nps-btn" data-value="6" onclick="selectNps(this)">6</button>
+            <button class="nps-btn" data-value="7" onclick="selectNps(this)">7</button>
+            <button class="nps-btn" data-value="8" onclick="selectNps(this)">8</button>
+            <button class="nps-btn" data-value="9" onclick="selectNps(this)">9</button>
+            <button class="nps-btn" data-value="10" onclick="selectNps(this)">10</button>
+          </div>
+          <div class="nps-labels">
+            <span>全く勧めない</span>
+            <span>強く勧める</span>
+          </div>
+        </div>
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="prevStep()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            戻る
+          </button>
+          <button class="btn btn-primary" onclick="nextStep()" id="step3Next" disabled>
+            次へ
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 5: Improvement -->
+      <div class="step" data-step="4">
+        <div class="step-label">Q4 / 5</div>
+        <h2 class="step-title">改善してほしい点は？</h2>
+        <p class="step-description">最も改善を希望する項目を1つ選択してください</p>
+        <div class="radio-group" id="improvementGroup">
+          <label class="radio-card" onclick="selectRadio(this)">
+            <div class="radio-dot"></div>
+            <div class="radio-content">
+              <span class="radio-title">操作性・UI</span>
+              <span class="radio-desc">より直感的なインターフェースに</span>
+            </div>
+          </label>
+          <label class="radio-card" onclick="selectRadio(this)">
+            <div class="radio-dot"></div>
+            <div class="radio-content">
+              <span class="radio-title">パフォーマンス</span>
+              <span class="radio-desc">読み込み速度の改善</span>
+            </div>
+          </label>
+          <label class="radio-card" onclick="selectRadio(this)">
+            <div class="radio-dot"></div>
+            <div class="radio-content">
+              <span class="radio-title">機能の充実</span>
+              <span class="radio-desc">新しい機能の追加</span>
+            </div>
+          </label>
+          <label class="radio-card" onclick="selectRadio(this)">
+            <div class="radio-dot"></div>
+            <div class="radio-content">
+              <span class="radio-title">サポート体制</span>
+              <span class="radio-desc">ヘルプやドキュメントの充実</span>
+            </div>
+          </label>
+          <label class="radio-card" onclick="selectRadio(this)">
+            <div class="radio-dot"></div>
+            <div class="radio-content">
+              <span class="radio-title">料金プラン</span>
+              <span class="radio-desc">価格設定の見直し</span>
+            </div>
+          </label>
+        </div>
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="prevStep()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            戻る
+          </button>
+          <button class="btn btn-primary" onclick="nextStep()" id="step4Next" disabled>
+            次へ
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 6: Free text -->
+      <div class="step" data-step="5">
+        <div class="step-label">Q5 / 5</div>
+        <h2 class="step-title">ご自由にご意見をお聞かせください</h2>
+        <p class="step-description">サービスへのご要望やフィードバックをお書きください</p>
+        <div class="textarea-wrapper">
+          <textarea
+            id="feedbackText"
+            class="textarea-modern"
+            placeholder="例: ダッシュボードのカスタマイズ性を高めてほしいです..."
+            rows="5"
+            maxlength="500"
+            oninput="updateCharCount(this)"
+          ></textarea>
+          <div class="char-count"><span id="charCount">0</span> / 500</div>
+        </div>
+        <div class="step-nav">
+          <button class="btn btn-secondary" onclick="prevStep()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 12H5M12 19l-7-7 7-7"/>
+            </svg>
+            戻る
+          </button>
+          <button class="btn btn-primary btn-submit" onclick="submitSurvey()">
+            送信する
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 7: Thank you -->
+      <div class="step" data-step="6">
+        <div class="completion-animation" id="completionAnim">
+          <svg class="checkmark-circle" width="80" height="80" viewBox="0 0 80 80">
+            <circle class="checkmark-bg" cx="40" cy="40" r="36" fill="none" stroke-width="3"/>
+            <circle class="checkmark-ring" cx="40" cy="40" r="36" fill="none" stroke-width="3"/>
+            <path class="checkmark-path" d="M24 40l10 10 22-22" fill="none" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2 class="step-title thank-you-title">ありがとうございました！</h2>
+        <p class="step-description">貴重なご意見をいただき、感謝いたします。<br>いただいたフィードバックはサービス改善に活用させていただきます。</p>
+        <div class="summary-card" id="summaryCard">
+          <h3 class="summary-title">回答サマリー</h3>
+          <div id="summaryContent"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/survey.js"></script>
+</body>
+</html>

@@ -4,16 +4,22 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-kaizen-dx-lab is a new project repository. The tech stack and structure are not yet established.
+kaizen-dx-lab is a modern survey form application built with vanilla HTML, CSS, and JavaScript.
 
 ## Repository Structure
 
 ```
 .
+├── index.html          # Main survey form page
+├── css/
+│   └── style.css       # Styles (glassmorphism, animations, responsive)
+├── js/
+│   └── survey.js       # Survey logic (navigation, state, validation)
+├── assets/             # Static assets (currently empty)
 ├── README.md
 └── CLAUDE.md
 ```
 
 ## Development
 
-No build, test, or lint tooling is configured yet. Update this section as tooling is added.
+This is a static site with no build tooling required. Open `index.html` in a browser to preview.
