@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>顧客満足度アンケート</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="bg-decoration">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="container">
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="progress-text">
+      <span id="progressText">1 / 5</span>
+    </div>
+
+    <!-- Step 1: Welcome -->
+    <section class="step active" data-step="1">
+      <div class="step-icon">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/>
+          <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/>
+        </svg>
+      </div>
+      <h1>ご利用ありがとうございます</h1>
+      <p class="subtitle">サービス向上のため、簡単なアンケートにご協力ください。<br>所要時間は約2分です。</p>
+      <button class="btn btn-primary" onclick="nextStep()">アンケートを始める</button>
+    </section>
+
+    <!-- Step 2: Overall Satisfaction -->
+    <section class="step" data-step="2">
+      <div class="step-badge">Q1</div>
+      <h2>総合的な満足度を教えてください</h2>
+      <p class="subtitle">サービス全体を通じて、どの程度ご満足いただけましたか？</p>
+      <div class="rating-group" id="satisfactionRating">
+        <button class="rating-card" data-value="5" onclick="selectRating(this)">
+          <span class="rating-emoji">😍</span>
+          <span class="rating-label">とても満足</span>
+        </button>
+        <button class="rating-card" data-value="4" onclick="selectRating(this)">
+          <span class="rating-emoji">😊</span>
+          <span class="rating-label">満足</span>
+        </button>
+        <button class="rating-card" data-value="3" onclick="selectRating(this)">
+          <span class="rating-emoji">😐</span>
+          <span class="rating-label">普通</span>
+        </button>
+        <button class="rating-card" data-value="2" onclick="selectRating(this)">
+          <span class="rating-emoji">😕</span>
+          <span class="rating-label">やや不満</span>
+        </button>
+        <button class="rating-card" data-value="1" onclick="selectRating(this)">
+          <span class="rating-emoji">😞</span>
+          <span class="rating-label">不満</span>
+        </button>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn btn-ghost" onclick="prevStep()">戻る</button>
+        <button class="btn btn-primary" onclick="nextStep()" id="step2Next" disabled>次へ</button>
+      </div>
+    </section>
+
+    <!-- Step 3: Category Ratings -->
+    <section class="step" data-step="3">
+      <div class="step-badge">Q2</div>
+      <h2>各項目の満足度を教えてください</h2>
+      <p class="subtitle">それぞれの項目について、星の数で評価してください。</p>
+      <div class="category-list">
+        <div class="category-item">
+          <div class="category-info">
+            <span class="category-icon">🎯</span>
+            <span class="category-name">品質</span>
+          </div>
+          <div class="star-rating" data-category="quality">
+            <button class="star" data-value="1" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="2" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="3" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="4" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="5" onclick="selectStar(this)">★</button>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-info">
+            <span class="category-icon">⚡</span>
+            <span class="category-name">対応スピード</span>
+          </div>
+          <div class="star-rating" data-category="speed">
+            <button class="star" data-value="1" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="2" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="3" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="4" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="5" onclick="selectStar(this)">★</button>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-info">
+            <span class="category-icon">💬</span>
+            <span class="category-name">コミュニケーション</span>
+          </div>
+          <div class="star-rating" data-category="communication">
+            <button class="star" data-value="1" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="2" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="3" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="4" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="5" onclick="selectStar(this)">★</button>
+          </div>
+        </div>
+        <div class="category-item">
+          <div class="category-info">
+            <span class="category-icon">💰</span>
+            <span class="category-name">コストパフォーマンス</span>
+          </div>
+          <div class="star-rating" data-category="cost">
+            <button class="star" data-value="1" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="2" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="3" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="4" onclick="selectStar(this)">★</button>
+            <button class="star" data-value="5" onclick="selectStar(this)">★</button>
+          </div>
+        </div>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn btn-ghost" onclick="prevStep()">戻る</button>
+        <button class="btn btn-primary" onclick="nextStep()">次へ</button>
+      </div>
+    </section>
+
+    <!-- Step 4: NPS + Free Text -->
+    <section class="step" data-step="4">
+      <div class="step-badge">Q3</div>
+      <h2>このサービスを他の方にも<br>おすすめしたいですか？</h2>
+      <p class="subtitle">0（まったく思わない）〜 10（強くそう思う）で教えてください。</p>
+      <div class="nps-group" id="npsGroup">
+        <button class="nps-btn" data-value="0" onclick="selectNps(this)">0</button>
+        <button class="nps-btn" data-value="1" onclick="selectNps(this)">1</button>
+        <button class="nps-btn" data-value="2" onclick="selectNps(this)">2</button>
+        <button class="nps-btn" data-value="3" onclick="selectNps(this)">3</button>
+        <button class="nps-btn" data-value="4" onclick="selectNps(this)">4</button>
+        <button class="nps-btn" data-value="5" onclick="selectNps(this)">5</button>
+        <button class="nps-btn" data-value="6" onclick="selectNps(this)">6</button>
+        <button class="nps-btn" data-value="7" onclick="selectNps(this)">7</button>
+        <button class="nps-btn" data-value="8" onclick="selectNps(this)">8</button>
+        <button class="nps-btn" data-value="9" onclick="selectNps(this)">9</button>
+        <button class="nps-btn" data-value="10" onclick="selectNps(this)">10</button>
+      </div>
+      <div class="nps-labels">
+        <span>まったく思わない</span>
+        <span>強くそう思う</span>
+      </div>
+
+      <div class="textarea-group">
+        <label for="feedback">ご意見・ご感想（任意）</label>
+        <textarea id="feedback" placeholder="改善してほしい点や良かった点など、自由にご記入ください…" rows="4"></textarea>
+      </div>
+
+      <div class="nav-buttons">
+        <button class="btn btn-ghost" onclick="prevStep()">戻る</button>
+        <button class="btn btn-primary" onclick="nextStep()">次へ</button>
+      </div>
+    </section>
+
+    <!-- Step 5: Thank You -->
+    <section class="step" data-step="5">
+      <div class="thank-you-animation" id="thankYouAnimation">
+        <div class="checkmark-circle">
+          <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </div>
+      </div>
+      <h1>ご回答ありがとうございました！</h1>
+      <p class="subtitle">いただいたご意見はサービス改善に<br>役立てさせていただきます。</p>
+      <div class="summary-card" id="summaryCard">
+        <!-- filled by JS -->
+      </div>
+      <button class="btn btn-secondary" onclick="resetForm()">もう一度回答する</button>
+    </section>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
