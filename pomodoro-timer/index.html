@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ポモドーロタイマー</title>
+  <style>
+    /* ===== 全体レイアウト ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', 'Hiragino Sans', 'Meiryo', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a1a2e;
+      transition: background 0.5s ease;
+    }
+
+    /* モードごとの背景色 */
+    body.mode-work    { background: #1a1a2e; }
+    body.mode-break   { background: #0f3460; }
+    body.mode-long    { background: #16213e; }
+
+    .container {
+      width: 420px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 24px;
+      padding: 40px 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: #ffffff;
+    }
+
+    /* ===== タイトル ===== */
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      margin-bottom: 24px;
+      color: #e94560;
+      text-transform: uppercase;
+    }
+
+    /* ===== モード切替タブ ===== */
+    .mode-tabs {
+      display: flex;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 32px;
+      gap: 4px;
+    }
+
+    .mode-tab {
+      flex: 1;
+      padding: 8px 4px;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.5px;
+    }
+
+    .mode-tab.active {
+      background: rgba(255,255,255,0.15);
+      color: #ffffff;
+    }
+
+    .mode-tab:hover:not(.active) {
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* ===== 円形タイマー ===== */
+    .timer-wrapper {
+      position: relative;
+      width: 240px;
+      height: 240px;
+      margin: 0 auto 32px;
+    }
+
+    .timer-svg {
+      transform: rotate(-90deg);
+      width: 100%;
+      height: 100%;
+    }
+
+    .timer-track {
+      fill: none;
+      stroke: rgba(255,255,255,0.1);
+      stroke-width: 8;
+    }
+
+    .timer-progress {
+      fill: none;
+      stroke: #e94560;
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 1s linear, stroke 0.5s;
+    }
+
+    body.mode-break  .timer-progress { stroke: #4ecca3; }
+    body.mode-long   .timer-progress { stroke: #f0a500; }
+
+    .timer-display {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .timer-time {
+      font-size: 56px;
+      font-weight: 700;
+      letter-spacing: -2px;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-top: 6px;
+      letter-spacing: 2px;
+    }
+
+    /* ===== コントロールボタン ===== */
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      border: none;
+      cursor: pointer;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn:active { transform: scale(0.94); }
+
+    .btn-main {
+      width: 72px;
+      height: 72px;
+      background: #e94560;
+      font-size: 28px;
+      box-shadow: 0 4px 20px rgba(233,69,96,0.5);
+    }
+
+    body.mode-break .btn-main  { background: #4ecca3; box-shadow: 0 4px 20px rgba(78,204,163,0.5); }
+    body.mode-long  .btn-main  { background: #f0a500; box-shadow: 0 4px 20px rgba(240,165,0,0.5); }
+
+    .btn-sub {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.1);
+      font-size: 18px;
+    }
+
+    .btn-sub:hover { background: rgba(255,255,255,0.2); }
+
+    /* ===== セッションカウンター（トマト） ===== */
+    .sessions-area {
+      margin-bottom: 24px;
+    }
+
+    .sessions-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+    }
+
+    .tomatoes {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tomato {
+      font-size: 20px;
+      opacity: 0.25;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .tomato.done {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .tomato.current {
+      opacity: 0.7;
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.15); }
+    }
+
+    /* ===== 設定パネル ===== */
+    .settings-toggle {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.3);
+      font-size: 12px;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    .settings-toggle:hover { color: rgba(255,255,255,0.7); }
+
+    .settings-panel {
+      display: none;
+      margin-top: 20px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .settings-panel.open { display: block; }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .setting-row:last-child { margin-bottom: 0; }
+
+    .setting-row label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.6);
+    }
+
+    .setting-row input[type="number"] {
+      width: 64px;
+      padding: 4px 8px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      color: #ffffff;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .setting-row input[type="number"]:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    /* ===== 通知トースト ===== */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body class="mode-work">
+
+  <div class="container">
+    <h1>🍅 Pomodoro</h1>
+
+    <!-- モード切替タブ -->
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="work"  onclick="switchMode('work')">作業 25分</button>
+      <button class="mode-tab"       data-mode="break"  onclick="switchMode('break')">休憩 5分</button>
+      <button class="mode-tab"       data-mode="long"   onclick="switchMode('long')">長休憩 15分</button>
+    </div>
+
+    <!-- 円形タイマー -->
+    <div class="timer-wrapper">
+      <svg class="timer-svg" viewBox="0 0 100 100">
+        <circle class="timer-track"    cx="50" cy="50" r="44"/>
+        <circle class="timer-progress" cx="50" cy="50" r="44"
+                stroke-dasharray="276.46"
+                stroke-dashoffset="0"
+                id="progress-ring"/>
+      </svg>
+      <div class="timer-display">
+        <div class="timer-time" id="timer-display">25:00</div>
+        <div class="timer-label" id="mode-label">FOCUS</div>
+      </div>
+    </div>
+
+    <!-- コントロールボタン -->
+    <div class="controls">
+      <button class="btn btn-sub" onclick="resetTimer()" title="リセット">⏮</button>
+      <button class="btn btn-main" id="start-btn" onclick="toggleTimer()">▶</button>
+      <button class="btn btn-sub" onclick="skipSession()" title="スキップ">⏭</button>
+    </div>
+
+    <!-- セッションカウンター -->
+    <div class="sessions-area">
+      <div class="sessions-label">TODAY'S SESSIONS</div>
+      <div class="tomatoes" id="tomatoes"></div>
+    </div>
+
+    <!-- 設定 -->
+    <button class="settings-toggle" onclick="toggleSettings()">⚙ 設定</button>
+    <div class="settings-panel" id="settings-panel">
+      <div class="setting-row">
+        <label>作業時間（分）</label>
+        <input type="number" id="set-work"  min="1" max="60" value="25" onchange="applySettings()">
+      </div>
+      <div class="setting-row">
+        <label>短い休憩（分）</label>
+        <input type="number" id="set-break" min="1" max="30" value="5"  onchange="applySettings()">
+      </div>
+      <div class="setting-row">
+        <label>長い休憩（分）</label>
+        <input type="number" id="set-long"  min="1" max="60" value="15" onchange="applySettings()">
+      </div>
+    </div>
+  </div>
+
+  <!-- 通知トースト -->
+  <div class="toast" id="toast"></div>
+
+  <audio id="bell-sound" preload="auto"></audio>
+
+  <script>
+    // ===== 状態管理 =====
+    const MODES = {
+      work:  { label: 'FOCUS',      bodyClass: 'mode-work',  modeLabel: '作業 25分' },
+      break: { label: 'SHORT BREAK', bodyClass: 'mode-break', modeLabel: '休憩 5分'  },
+      long:  { label: 'LONG BREAK',  bodyClass: 'mode-long',  modeLabel: '長休憩 15分'},
+    };
+
+    let settings = {
+      work:  25,
+      break: 5,
+      long:  15,
+    };
+
+    let currentMode   = 'work';
+    let totalSeconds  = settings.work * 60;
+    let remainSeconds = totalSeconds;
+    let isRunning     = false;
+    let interval      = null;
+    let completedWork = 0;   // 今日の完了セッション数
+    const MAX_TOMATOES = 8;  // 表示するトマト数
+
+    const CIRCUMFERENCE = 276.46; // 2π×44
+
+    // ===== DOM参照 =====
+    const timerDisplay  = document.getElementById('timer-display');
+    const modeLabelEl   = document.getElementById('mode-label');
+    const progressRing  = document.getElementById('progress-ring');
+    const startBtn      = document.getElementById('start-btn');
+    const tomatoesEl    = document.getElementById('tomatoes');
+    const toastEl       = document.getElementById('toast');
+
+    // ===== 初期化 =====
+    function init() {
+      renderTomatoes();
+      updateDisplay();
+    }
+
+    // ===== モード切替 =====
+    function switchMode(mode) {
+      stopTimer();
+      currentMode   = mode;
+      totalSeconds  = settings[mode] * 60;
+      remainSeconds = totalSeconds;
+
+      // タブの見た目
+      document.querySelectorAll('.mode-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.mode === mode);
+      });
+
+      // body のクラス（色テーマ）
+      document.body.className = MODES[mode].bodyClass;
+
+      // ラベル
+      modeLabelEl.textContent = MODES[mode].label;
+
+      updateDisplay();
+    }
+
+    // ===== タイマー操作 =====
+    function toggleTimer() {
+      isRunning ? pauseTimer() : startTimer();
+    }
+
+    function startTimer() {
+      isRunning = true;
+      startBtn.textContent = '⏸';
+      interval = setInterval(tick, 1000);
+    }
+
+    function pauseTimer() {
+      isRunning = false;
+      startBtn.textContent = '▶';
+      clearInterval(interval);
+    }
+
+    function stopTimer() {
+      pauseTimer();
+      remainSeconds = totalSeconds;
+    }
+
+    function resetTimer() {
+      stopTimer();
+      updateDisplay();
+      showToast('タイマーをリセットしました');
+    }
+
+    function skipSession() {
+      stopTimer();
+      onSessionComplete(false);
+    }
+
+    // ===== 毎秒の処理 =====
+    function tick() {
+      remainSeconds--;
+      updateDisplay();
+
+      if (remainSeconds <= 0) {
+        onSessionComplete(true);
+      }
+    }
+
+    // ===== セッション完了 =====
+    function onSessionComplete(autoComplete) {
+      stopTimer();
+
+      if (currentMode === 'work') {
+        completedWork++;
+        renderTomatoes();
+        playBell();
+
+        const isLongBreak = completedWork % 4 === 0;
+        if (autoComplete) {
+          showToast(isLongBreak
+            ? `🎉 ${completedWork}セッション完了！長い休憩をどうぞ`
+            : `✅ セッション完了！短い休憩をどうぞ`);
+        }
+        setTimeout(() => switchMode(isLongBreak ? 'long' : 'break'), 600);
+      } else {
+        if (autoComplete) {
+          showToast('☕ 休憩終了！次のセッションを始めましょう');
+          playBell();
+        }
+        setTimeout(() => switchMode('work'), 600);
+      }
+    }
+
+    // ===== 表示更新 =====
+    function updateDisplay() {
+      const m = Math.floor(remainSeconds / 60);
+      const s = remainSeconds % 60;
+      timerDisplay.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+      // プログレスリング
+      const ratio  = remainSeconds / totalSeconds;
+      const offset = CIRCUMFERENCE * (1 - ratio);
+      progressRing.style.strokeDashoffset = offset;
+    }
+
+    // ===== トマト表示 =====
+    function renderTomatoes() {
+      tomatoesEl.innerHTML = '';
+      const total   = Math.max(MAX_TOMATOES, completedWork + 1);
+      const display = Math.min(total, MAX_TOMATOES);
+
+      for (let i = 0; i < display; i++) {
+        const span = document.createElement('span');
+        span.className = 'tomato';
+        span.textContent = '🍅';
+
+        if (i < completedWork) {
+          span.classList.add('done');
+        } else if (i === completedWork && currentMode === 'work') {
+          span.classList.add('current');
+        }
+
+        tomatoesEl.appendChild(span);
+      }
+
+      // 超過分を数字で表示
+      if (completedWork > MAX_TOMATOES) {
+        const extra = document.createElement('span');
+        extra.style.cssText = 'font-size:13px;color:rgba(255,255,255,0.5);align-self:center;';
+        extra.textContent = `+${completedWork - MAX_TOMATOES}`;
+        tomatoesEl.appendChild(extra);
+      }
+    }
+
+    // ===== 設定 =====
+    function toggleSettings() {
+      document.getElementById('settings-panel').classList.toggle('open');
+    }
+
+    function applySettings() {
+      settings.work  = parseInt(document.getElementById('set-work').value)  || 25;
+      settings.break = parseInt(document.getElementById('set-break').value) || 5;
+      settings.long  = parseInt(document.getElementById('set-long').value)  || 15;
+      switchMode(currentMode);
+      showToast('設定を保存しました');
+    }
+
+    // ===== 通知トースト =====
+    let toastTimeout;
+    function showToast(msg) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toastEl.classList.remove('show'), 3000);
+    }
+
+    // ===== 音 (Web Audio API) =====
+    function playBell() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        [0, 0.15, 0.3].forEach(delay => {
+          const osc  = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.value = 880;
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.4, ctx.currentTime + delay);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.8);
+          osc.start(ctx.currentTime + delay);
+          osc.stop(ctx.currentTime + delay + 0.8);
+        });
+      } catch(e) {
+        // 音が鳴らない環境では無視
+      }
+    }
+
+    // ===== キーボードショートカット =====
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT') return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleTimer();
+      } else if (e.code === 'KeyR') {
+        resetTimer();
+      }
+    });
+
+    // ===== 起動 =====
+    init();
+  </script>
+</body>
+</html>
