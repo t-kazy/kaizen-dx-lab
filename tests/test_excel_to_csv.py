@@ -1,0 +1,196 @@
+"""excel_to_csv モジュールのテスト。"""
+
+import csv
+import tempfile
+from datetime import datetime
+from pathlib import Path
+
+import pytest
+from openpyxl import Workbook
+
+from src.excel_to_csv import (
+    convert_sheet,
+    convert_workbook,
+    detect_header_row,
+    detect_name_column,
+    parse_dates,
+    write_csv,
+)
+
+WEEKDAYS = ["月", "火", "水", "木", "金", "土", "日"]
+
+
+def _create_shift_workbook(tmp_path, filename="test_shift.xlsx"):
+    """テスト用のシフト表Excelを作成する。"""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "3月シフト表"
+
+    # タイトル行
+    ws.cell(row=1, column=1, value="2026年3月 シフト表")
+
+    # ヘッダー行 (3行目)
+    ws.cell(row=3, column=1, value="従業員名")
+    for day in range(1, 8):
+        dt = datetime(2026, 3, day)
+        weekday = WEEKDAYS[dt.weekday()]
+        ws.cell(row=3, column=day + 1, value=f"3/{day}({weekday})")
+
+    # 従業員データ
+    employees = {
+        "田中太郎": ["早番", "遅番", "夜勤", "休み", "早番", "休み", "休み"],
+        "鈴木花子": ["遅番", "早番", "早番", "夜勤", "遅番", "休み", "休み"],
+    }
+    for i, (name, shifts) in enumerate(employees.items()):
+        row = 4 + i
+        ws.cell(row=row, column=1, value=name)
+        for j, shift in enumerate(shifts):
+            ws.cell(row=row, column=j + 2, value=shift)
+
+    path = tmp_path / filename
+    wb.save(path)
+    return path
+
+
+class TestDetectHeaderRow:
+    def test_finds_header_with_date_strings(self, tmp_path):
+        path = _create_shift_workbook(tmp_path)
+        wb = Workbook()
+        ws = wb.active
+        ws.cell(row=1, column=1, value="タイトル")
+        ws.cell(row=3, column=2, value="3/1(月)")
+        ws.cell(row=3, column=3, value="3/2(火)")
+        ws.cell(row=3, column=4, value="3/3(水)")
+
+        assert detect_header_row(ws) == 3
+
+    def test_returns_none_when_no_dates(self):
+        wb = Workbook()
+        ws = wb.active
+        ws.cell(row=1, column=1, value="テスト")
+        ws.cell(row=2, column=1, value="データ")
+
+        assert detect_header_row(ws) is None
+
+
+class TestDetectNameColumn:
+    def test_finds_name_column(self):
+        wb = Workbook()
+        ws = wb.active
+        ws.cell(row=3, column=1, value="従業員名")
+        ws.cell(row=4, column=1, value="田中太郎")
+        ws.cell(row=5, column=1, value="鈴木花子")
+
+        assert detect_name_column(ws, header_row=3) == 1
+
+
+class TestParseDates:
+    def test_parses_slash_dates_with_weekday(self):
+        wb = Workbook()
+        ws = wb.active
+        ws.cell(row=1, column=1, value="従業員名")
+        ws.cell(row=1, column=2, value="3/1(月)")
+        ws.cell(row=1, column=3, value="3/2(火)")
+
+        dates = parse_dates(ws, header_row=1, name_col=1, year=2026)
+        assert dates[2] == "2026-03-01"
+        assert dates[3] == "2026-03-02"
+
+    def test_parses_datetime_objects(self):
+        wb = Workbook()
+        ws = wb.active
+        ws.cell(row=1, column=1, value="名前")
+        ws.cell(row=1, column=2, value=datetime(2026, 3, 1))
+        ws.cell(row=1, column=3, value=datetime(2026, 3, 2))
+
+        dates = parse_dates(ws, header_row=1, name_col=1, year=2026)
+        assert dates[2] == "2026-03-01"
+        assert dates[3] == "2026-03-02"
+
+
+class TestConvertSheet:
+    def test_converts_sheet_to_records(self, tmp_path):
+        path = _create_shift_workbook(tmp_path)
+        from openpyxl import load_workbook
+
+        wb = load_workbook(path)
+        ws = wb.active
+
+        records = convert_sheet(ws, year=2026)
+
+        assert len(records) == 14  # 2 employees × 7 days
+        # 特定レコードの確認
+        tanaka_mar1 = [
+            r for r in records
+            if r["employee"] == "田中太郎" and r["date"] == "2026-03-01"
+        ]
+        assert len(tanaka_mar1) == 1
+        assert tanaka_mar1[0]["shift"] == "早番"
+
+    def test_skips_empty_cells(self):
+        wb = Workbook()
+        ws = wb.active
+        ws.cell(row=1, column=1, value="名前")
+        ws.cell(row=1, column=2, value="3/1(月)")
+        ws.cell(row=1, column=3, value="3/2(火)")
+        ws.cell(row=2, column=1, value="田中太郎")
+        ws.cell(row=2, column=2, value="早番")
+        # 3/2 は空欄
+
+        records = convert_sheet(ws, year=2026)
+        assert len(records) == 1
+        assert records[0]["shift"] == "早番"
+
+
+class TestConvertWorkbook:
+    def test_full_conversion(self, tmp_path):
+        path = _create_shift_workbook(tmp_path)
+        records = convert_workbook(path, year=2026)
+
+        assert len(records) == 14
+        employees = {r["employee"] for r in records}
+        assert employees == {"田中太郎", "鈴木花子"}
+
+
+class TestWriteCsv:
+    def test_writes_sorted_csv(self, tmp_path):
+        records = [
+            {"date": "2026-03-02", "employee": "鈴木花子", "shift": "遅番"},
+            {"date": "2026-03-01", "employee": "田中太郎", "shift": "早番"},
+            {"date": "2026-03-01", "employee": "鈴木花子", "shift": "早番"},
+        ]
+        output_path = tmp_path / "output.csv"
+        count = write_csv(records, output_path)
+
+        assert count == 3
+        with open(output_path, encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        assert len(rows) == 3
+        # 日付→名前の順でソートされている
+        assert rows[0]["date"] == "2026-03-01"
+        assert rows[0]["employee"] == "田中太郎"
+        assert rows[1]["date"] == "2026-03-01"
+        assert rows[1]["employee"] == "鈴木花子"
+        assert rows[2]["date"] == "2026-03-02"
+
+
+class TestEndToEnd:
+    def test_excel_to_csv_roundtrip(self, tmp_path):
+        """Excel生成 → 変換 → CSV読み込みの一連の流れをテスト。"""
+        excel_path = _create_shift_workbook(tmp_path)
+        csv_path = tmp_path / "output.csv"
+
+        records = convert_workbook(excel_path, year=2026)
+        write_csv(records, csv_path)
+
+        with open(csv_path, encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        assert len(rows) == 14
+        assert all(r["date"].startswith("2026-03-") for r in rows)
+        assert set(r["employee"] for r in rows) == {"田中太郎", "鈴木花子"}
+        shift_types = set(r["shift"] for r in rows)
+        assert shift_types <= {"早番", "遅番", "夜勤", "休み"}
