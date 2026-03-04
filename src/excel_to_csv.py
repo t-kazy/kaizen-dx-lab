@@ -1,7 +1,8 @@
-"""ExcelシフトデータをCSV形式に自動変換するツール。
+"""Excel/CSVシフトデータをCSV形式に自動変換するツール。
 
 典型的な日本語シフト表（行=従業員、列=日付）を読み取り、
 「日付, 従業員名, シフト種別」のフラットなCSVに変換する。
+Excel (.xlsx) と CSV (.csv) の両方を入力としてサポートする。
 """
 
 import argparse
@@ -11,7 +12,59 @@ from datetime import datetime
 from pathlib import Path
 
 from openpyxl import load_workbook
-from openpyxl.utils import get_column_letter
+
+
+class _CsvCell:
+    """openpyxl の Cell を模倣する軽量オブジェクト。"""
+
+    def __init__(self, value):
+        self.value = value
+
+
+class CsvWorksheet:
+    """CSV ファイルを openpyxl ワークシート風に扱うラッパー。
+
+    既存の detect_header_row / detect_name_column / parse_dates /
+    find_data_rows / convert_sheet をそのまま再利用できる。
+    """
+
+    def __init__(self, rows, title="CSV"):
+        self.title = title
+        self._rows = rows  # list[list[str|None]]
+        self.max_row = len(rows)
+        self.max_column = max((len(r) for r in rows), default=0)
+
+    def cell(self, row, column):
+        r = row - 1
+        c = column - 1
+        if 0 <= r < len(self._rows) and 0 <= c < len(self._rows[r]):
+            return _CsvCell(self._rows[r][c] or None)
+        return _CsvCell(None)
+
+    @classmethod
+    def from_file(cls, csv_path, encoding="utf-8-sig"):
+        """CSVファイルを読み込んで CsvWorksheet を返す。"""
+        rows = []
+        path = Path(csv_path)
+        # utf-8-sig → utf-8 → shift_jis → cp932 の順で試行
+        encodings = [encoding, "utf-8", "shift_jis", "cp932"]
+        for enc in encodings:
+            try:
+                with open(path, newline="", encoding=enc) as f:
+                    reader = csv.reader(f)
+                    rows = [row for row in reader]
+                break
+            except (UnicodeDecodeError, UnicodeError):
+                continue
+        else:
+            raise ValueError(f"CSVファイルのエンコーディングを検出できません: {path}")
+        return cls(rows, title=path.stem)
+
+
+def convert_csv_file(csv_path, year=None, encoding="utf-8-sig"):
+    """CSVシフト表ファイルを変換する。"""
+    ws = CsvWorksheet.from_file(csv_path, encoding=encoding)
+    return convert_sheet(ws, year=year)
 
 
 def detect_header_row(ws, max_scan=20):
@@ -228,7 +281,7 @@ def main():
     )
     parser.add_argument(
         "input",
-        help="入力Excelファイルのパス (.xlsx)",
+        help="入力ファイルのパス (.xlsx または .csv)",
     )
     parser.add_argument(
         "-o", "--output",
@@ -258,13 +311,19 @@ def main():
 
     if args.output:
         output_path = Path(args.output)
+    elif input_path.suffix.lower() == ".csv":
+        # CSV → CSV の場合、上書きを防ぐためサフィックスを付ける
+        output_path = input_path.with_stem(input_path.stem + "_flat")
     else:
         output_path = input_path.with_suffix(".csv")
 
     print(f"入力: {input_path}")
     print(f"出力: {output_path}")
 
-    records = convert_workbook(input_path, sheet_name=args.sheet, year=args.year)
+    if input_path.suffix.lower() == ".csv":
+        records = convert_csv_file(input_path, year=args.year, encoding=args.encoding)
+    else:
+        records = convert_workbook(input_path, sheet_name=args.sheet, year=args.year)
 
     if not records:
         print("警告: シフトデータが見つかりませんでした。", file=sys.stderr)
