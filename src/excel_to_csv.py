@@ -7,6 +7,7 @@ Excel (.xlsx) と CSV (.csv) の両方を入力としてサポートする。
 
 import argparse
 import csv
+import json
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -137,6 +138,140 @@ def _find_column(headers, keywords):
             if kw in h:
                 return i
     return None
+
+
+# --- freee勤怠管理Plus 変換 ---
+
+_START_TIME_KEYWORDS = ("勤務時間(開始)", "勤務時間（開始）", "開始時刻", "出勤時刻")
+_END_TIME_KEYWORDS = ("勤務時間(終了)", "勤務時間（終了）", "終了時刻", "退勤時刻")
+
+
+def load_freee_mapping(mapping_path):
+    """freeeマッピング設定ファイルを読み込む。"""
+    path = Path(mapping_path)
+    if not path.exists():
+        raise FileNotFoundError(f"マッピングファイルが見つかりません: {path}")
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
+    """CSVシフト表をfreee勤怠管理Plus スケジュールCSV形式に変換する。"""
+    ws = CsvWorksheet.from_file(csv_path, encoding=encoding)
+    mapping = load_freee_mapping(mapping_path)
+
+    employee_map = mapping.get("employee_map", {})
+    shift_map = mapping.get("shift_map", {})
+    time_to_pattern = mapping.get("time_to_pattern", {})
+    skip_shifts = set(mapping.get("skip_shifts", []))
+
+    # ヘッダー検出
+    headers = []
+    for col_idx in range(1, ws.max_column + 1):
+        val = ws.cell(row=1, column=col_idx).value
+        headers.append(str(val).strip() if val else "")
+    headers_lower = [h.lower() for h in headers]
+
+    date_col = _find_column(headers_lower, _DATE_KEYWORDS)
+    employee_col = _find_column(headers_lower, _EMPLOYEE_KEYWORDS)
+    shift_col = _find_column(headers_lower, _SHIFT_KEYWORDS)
+    start_time_col = _find_column(headers, _START_TIME_KEYWORDS)
+    end_time_col = _find_column(headers, _END_TIME_KEYWORDS)
+
+    if date_col is None or employee_col is None:
+        raise ValueError("CSVから日付列または従業員列を検出できませんでした。")
+
+    records = []
+    unmapped_employees = set()
+    unmapped_shifts = set()
+
+    for row_idx in range(2, ws.max_row + 1):
+        date_val = ws.cell(row=row_idx, column=date_col + 1).value
+        employee_val = ws.cell(row=row_idx, column=employee_col + 1).value
+
+        if not date_val or not employee_val:
+            continue
+
+        shift_val = ws.cell(row=row_idx, column=shift_col + 1).value if shift_col is not None else None
+        shift_str = str(shift_val).strip() if shift_val else ""
+
+        if shift_str in skip_shifts or not shift_str:
+            continue
+
+        # 従業員名 → コード
+        emp_name = str(employee_val).strip()
+        emp_code = _resolve_employee_code(emp_name, employee_map)
+        if not emp_code:
+            unmapped_employees.add(emp_name)
+            continue
+
+        # シフト → パターンコード
+        pattern_code = shift_map.get(shift_str)
+        if not pattern_code and start_time_col is not None and end_time_col is not None:
+            start_val = ws.cell(row=row_idx, column=start_time_col + 1).value
+            end_val = ws.cell(row=row_idx, column=end_time_col + 1).value
+            if start_val and end_val:
+                time_key = f"{_normalize_time(start_val)}-{_normalize_time(end_val)}"
+                pattern_code = time_to_pattern.get(time_key)
+        if not pattern_code:
+            unmapped_shifts.add(shift_str)
+            continue
+
+        # 日付正規化 (freee は YYYY/MM/DD 形式)
+        date_str = _normalize_date(date_val, datetime.now().year)
+        if date_str:
+            date_str = date_str.replace("-", "/")
+        else:
+            date_str = str(date_val).strip()
+
+        records.append({
+            "勤務日": date_str,
+            "従業員コード": emp_code,
+            "パターンコード": pattern_code,
+        })
+
+    for name in sorted(unmapped_employees):
+        print(f"警告: 従業員 '{name}' のコードが未設定です (スキップ)", file=sys.stderr)
+    for shift in sorted(unmapped_shifts):
+        print(f"警告: シフト '{shift}' のパターンコードが未設定です (スキップ)", file=sys.stderr)
+
+    return records
+
+
+def _resolve_employee_code(name, employee_map):
+    """従業員名からコードを解決する（スペース有無を吸収）。"""
+    if name in employee_map:
+        return employee_map[name]
+    name_no_space = name.replace(" ", "").replace("\u3000", "")
+    for key, code in employee_map.items():
+        if key.replace(" ", "").replace("\u3000", "") == name_no_space:
+            return code
+    return None
+
+
+def _normalize_time(val):
+    """時刻を H:MM 形式に正規化する。"""
+    s = str(val).strip().replace("：", ":")
+    parts = s.split(":")
+    if len(parts) >= 2:
+        try:
+            h = int(parts[0])
+            m = int(parts[1])
+            return f"{h}:{m:02d}"
+        except ValueError:
+            pass
+    return s
+
+
+def write_freee_csv(records, output_path, encoding="utf-8-sig"):
+    """freee勤怠管理Plus形式のCSVを書き出す。"""
+    fieldnames = ["勤務日", "従業員コード", "パターンコード"]
+    with open(output_path, "w", newline="", encoding=encoding) as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for record in sorted(records, key=lambda r: (r["勤務日"], r["従業員コード"])):
+            writer.writerow(record)
+    return len(records)
 
 
 def detect_header_row(ws, max_scan=20):
@@ -373,6 +508,17 @@ def main():
         default="utf-8-sig",
         help="出力CSVのエンコーディング (デフォルト: utf-8-sig)",
     )
+    parser.add_argument(
+        "-f", "--format",
+        choices=["flat", "freee"],
+        default="flat",
+        help="出力形式: flat (デフォルト) または freee (freee勤怠管理Plus用)",
+    )
+    parser.add_argument(
+        "-m", "--mapping",
+        default="config/freee_mapping.json",
+        help="freee形式用のマッピングファイル (デフォルト: config/freee_mapping.json)",
+    )
 
     args = parser.parse_args()
 
@@ -381,27 +527,39 @@ def main():
         print(f"エラー: ファイルが見つかりません: {input_path}", file=sys.stderr)
         sys.exit(1)
 
+    # 出力パス決定
     if args.output:
         output_path = Path(args.output)
+    elif args.format == "freee":
+        output_path = input_path.with_stem(input_path.stem + "_freee").with_suffix(".csv")
     elif input_path.suffix.lower() == ".csv":
-        # CSV → CSV の場合、上書きを防ぐためサフィックスを付ける
         output_path = input_path.with_stem(input_path.stem + "_flat")
     else:
         output_path = input_path.with_suffix(".csv")
 
     print(f"入力: {input_path}")
     print(f"出力: {output_path}")
+    print(f"形式: {args.format}")
 
-    if input_path.suffix.lower() == ".csv":
-        records = convert_csv_file(input_path, year=args.year, encoding=args.encoding)
+    if args.format == "freee":
+        records = convert_to_freee(input_path, args.mapping, encoding=args.encoding)
+        if not records:
+            print("警告: 変換できるシフトデータがありませんでした。", file=sys.stderr)
+            print("マッピングファイルを確認してください:", args.mapping, file=sys.stderr)
+            sys.exit(1)
+        count = write_freee_csv(records, output_path, encoding=args.encoding)
     else:
-        records = convert_workbook(input_path, sheet_name=args.sheet, year=args.year)
+        if input_path.suffix.lower() == ".csv":
+            records = convert_csv_file(input_path, year=args.year, encoding=args.encoding)
+        else:
+            records = convert_workbook(input_path, sheet_name=args.sheet, year=args.year)
 
-    if not records:
-        print("警告: シフトデータが見つかりませんでした。", file=sys.stderr)
-        sys.exit(1)
+        if not records:
+            print("警告: シフトデータが見つかりませんでした。", file=sys.stderr)
+            sys.exit(1)
 
-    count = write_csv(records, output_path, encoding=args.encoding)
+        count = write_csv(records, output_path, encoding=args.encoding)
+
     print(f"完了: {count}件のシフトレコードを出力しました。")
 
 

@@ -1,6 +1,7 @@
 """excel_to_csv モジュールのテスト。"""
 
 import csv
+import json
 import tempfile
 from datetime import datetime
 from pathlib import Path
@@ -12,11 +13,13 @@ from src.excel_to_csv import (
     CsvWorksheet,
     convert_csv_file,
     convert_sheet,
+    convert_to_freee,
     convert_workbook,
     detect_header_row,
     detect_name_column,
     parse_dates,
     write_csv,
+    write_freee_csv,
 )
 
 WEEKDAYS = ["月", "火", "水", "木", "金", "土", "日"]
@@ -303,6 +306,112 @@ class TestTabularCsv:
 
         assert len(rows) == 5
         assert set(rows[0].keys()) == {"date", "employee", "shift"}
+
+
+def _create_freee_mapping(tmp_path, filename="freee_mapping.json"):
+    """テスト用のfreeeマッピングファイルを作成する。"""
+    path = tmp_path / filename
+    mapping = {
+        "employee_map": {
+            "梶井大成": "107",
+            "山田花子": "108",
+        },
+        "time_to_pattern": {
+            "8:00-17:00": "早出",
+            "9:00-18:00": "特別1",
+            "10:00-19:00": "通常",
+        },
+        "shift_map": {},
+        "skip_shifts": ["公休"],
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(mapping, f, ensure_ascii=False)
+    return path
+
+
+class TestFreeeConversion:
+    def test_converts_to_freee_format(self, tmp_path):
+        csv_path = _create_tabular_csv(tmp_path)
+        mapping_path = _create_freee_mapping(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        assert len(records) == 4  # 5 rows - 1 公休 = 4
+        assert all("勤務日" in r for r in records)
+        assert all("従業員コード" in r for r in records)
+        assert all("パターンコード" in r for r in records)
+
+    def test_employee_code_mapping(self, tmp_path):
+        csv_path = _create_tabular_csv(tmp_path)
+        mapping_path = _create_freee_mapping(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        codes = {r["従業員コード"] for r in records}
+        assert codes == {"107", "108"}
+
+    def test_time_based_pattern_matching(self, tmp_path):
+        csv_path = _create_tabular_csv(tmp_path)
+        mapping_path = _create_freee_mapping(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        patterns = {r["パターンコード"] for r in records}
+        assert "早出" in patterns
+        assert "特別1" in patterns
+        assert "通常" in patterns
+
+    def test_skips_public_holidays(self, tmp_path):
+        csv_path = _create_tabular_csv(tmp_path)
+        mapping_path = _create_freee_mapping(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        # 公休はスキップされる
+        shifts = {r["パターンコード"] for r in records}
+        assert "公休" not in shifts
+
+    def test_date_format_uses_slash(self, tmp_path):
+        csv_path = _create_tabular_csv(tmp_path)
+        mapping_path = _create_freee_mapping(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        for r in records:
+            assert "/" in r["勤務日"]
+            assert "-" not in r["勤務日"]
+
+    def test_write_freee_csv(self, tmp_path):
+        csv_path = _create_tabular_csv(tmp_path)
+        mapping_path = _create_freee_mapping(tmp_path)
+        output_path = tmp_path / "freee_output.csv"
+
+        records = convert_to_freee(csv_path, mapping_path)
+        count = write_freee_csv(records, output_path)
+
+        assert count == 4
+        with open(output_path, encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        assert len(rows) == 4
+        assert set(rows[0].keys()) == {"勤務日", "従業員コード", "パターンコード"}
+
+    def test_space_in_employee_name(self, tmp_path):
+        """スペース入りの名前でもマッチする。"""
+        csv_input = tmp_path / "spaced.csv"
+        rows = [
+            ["指導員名", "職種", "日付", "勤務時間(開始)", "勤務時間(終了)", "シフト名"],
+            ["梶井 大成", "管理者", "2026/4/1", "8:00", "17:00", "早出出勤（8-17）"],
+        ]
+        with open(csv_input, "w", newline="", encoding="utf-8-sig") as f:
+            csv.writer(f).writerows(rows)
+
+        mapping_path = _create_freee_mapping(tmp_path)
+        records = convert_to_freee(csv_input, mapping_path)
+
+        assert len(records) == 1
+        assert records[0]["従業員コード"] == "107"
 
 
 class TestEndToEnd:
