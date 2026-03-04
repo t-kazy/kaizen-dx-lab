@@ -27,9 +27,5 @@
     },
     "shift_map": {},
     "holiday_shifts": ["公休", "休日", "休み"],
-    "holiday_patterns": {
-        "法定休日": "",
-        "法定外休日": ""
-    },
     "skip_shifts": ["有休", "欠勤"]
 }

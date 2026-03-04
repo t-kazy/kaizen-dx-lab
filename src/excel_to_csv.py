@@ -182,7 +182,6 @@ def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
     time_to_pattern = mapping.get("time_to_pattern", {})
     skip_shifts = set(mapping.get("skip_shifts", []))
     holiday_shifts = set(mapping.get("holiday_shifts", []))
-    holiday_patterns = mapping.get("holiday_patterns", {})
 
     # ヘッダー検出
     headers = []
@@ -203,7 +202,6 @@ def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
     records = []
     unmapped_employees = set()
     unmapped_shifts = set()
-    missing_holiday_patterns = set()
 
     for row_idx in range(2, ws.max_row + 1):
         date_val = ws.cell(row=row_idx, column=date_col + 1).value
@@ -230,13 +228,11 @@ def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
 
         # 休日シフトの処理
         if shift_str in holiday_shifts:
+            pattern_code = ""
             holiday_type = _classify_holiday(date_iso)
-            pattern_code = holiday_patterns.get(holiday_type)
-            if not pattern_code:
-                missing_holiday_patterns.add(holiday_type)
-                continue
         else:
             # 通常シフト → パターンコード
+            holiday_type = ""
             pattern_code = shift_map.get(shift_str)
             if not pattern_code and start_time_col is not None and end_time_col is not None:
                 start_val = ws.cell(row=row_idx, column=start_time_col + 1).value
@@ -258,14 +254,13 @@ def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
             "勤務日": date_str,
             "従業員コード": emp_code,
             "パターンコード": pattern_code,
+            "全日休暇": holiday_type,
         })
 
     for name in sorted(unmapped_employees):
         print(f"警告: 従業員 '{name}' のコードが未設定です (スキップ)", file=sys.stderr)
     for shift in sorted(unmapped_shifts):
         print(f"警告: シフト '{shift}' のパターンコードが未設定です (スキップ)", file=sys.stderr)
-    for ht in sorted(missing_holiday_patterns):
-        print(f"警告: '{ht}' のパターンコードが未設定です (config/freee_mapping.json の holiday_patterns を設定してください)", file=sys.stderr)
 
     return records
 
@@ -300,7 +295,12 @@ def write_freee_csv(records, output_path, encoding="cp932"):
     with open(output_path, "w", newline="", encoding=encoding) as f:
         writer = csv.writer(f)
         for record in sorted(records, key=lambda r: (r["勤務日"], r["従業員コード"])):
-            writer.writerow([record["勤務日"], record["従業員コード"], record["パターンコード"]])
+            writer.writerow([
+                record["勤務日"],
+                record["従業員コード"],
+                record["パターンコード"],
+                record.get("全日休暇", ""),
+            ])
     return len(records)
 
 
