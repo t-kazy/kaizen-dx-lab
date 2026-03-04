@@ -263,14 +263,12 @@ def _normalize_time(val):
     return s
 
 
-def write_freee_csv(records, output_path, encoding="utf-8-sig"):
-    """freee勤怠管理Plus形式のCSVを書き出す。"""
-    fieldnames = ["勤務日", "従業員コード", "パターンコード"]
+def write_freee_csv(records, output_path, encoding="cp932"):
+    """freee勤怠管理Plus形式のCSVを書き出す。ヘッダーなし・Shift_JIS。"""
     with open(output_path, "w", newline="", encoding=encoding) as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
+        writer = csv.writer(f)
         for record in sorted(records, key=lambda r: (r["勤務日"], r["従業員コード"])):
-            writer.writerow(record)
+            writer.writerow([record["勤務日"], record["従業員コード"], record["パターンコード"]])
     return len(records)
 
 

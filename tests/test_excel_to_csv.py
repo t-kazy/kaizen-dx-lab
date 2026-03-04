@@ -390,12 +390,12 @@ class TestFreeeConversion:
         count = write_freee_csv(records, output_path)
 
         assert count == 4
-        with open(output_path, encoding="utf-8-sig") as f:
-            reader = csv.DictReader(f)
+        with open(output_path, encoding="cp932") as f:
+            reader = csv.reader(f)
             rows = list(reader)
 
-        assert len(rows) == 4
-        assert set(rows[0].keys()) == {"勤務日", "従業員コード", "パターンコード"}
+        assert len(rows) == 4  # ヘッダーなし、データのみ
+        assert len(rows[0]) == 3  # 勤務日, 従業員コード, パターンコード
 
     def test_space_in_employee_name(self, tmp_path):
         """スペース入りの名前でもマッチする。"""
