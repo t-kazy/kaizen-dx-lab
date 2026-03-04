@@ -545,7 +545,7 @@ def main():
             print("警告: 変換できるシフトデータがありませんでした。", file=sys.stderr)
             print("マッピングファイルを確認してください:", args.mapping, file=sys.stderr)
             sys.exit(1)
-        count = write_freee_csv(records, output_path, encoding=args.encoding)
+        count = write_freee_csv(records, output_path)
     else:
         if input_path.suffix.lower() == ".csv":
             records = convert_csv_file(input_path, year=args.year, encoding=args.encoding)
