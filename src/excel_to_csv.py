@@ -62,9 +62,81 @@ class CsvWorksheet:
 
 
 def convert_csv_file(csv_path, year=None, encoding="utf-8-sig"):
-    """CSVシフト表ファイルを変換する。"""
+    """CSVシフト表ファイルを変換する。
+
+    テーブル形式（1行1レコード、ヘッダーに「日付」「シフト」等がある）を
+    自動検出し、該当すればそちらで処理する。
+    検出できなければ従来のマトリクス形式として処理する。
+    """
     ws = CsvWorksheet.from_file(csv_path, encoding=encoding)
+
+    # テーブル形式かどうかを判定
+    tabular = _detect_tabular_csv(ws)
+    if tabular is not None:
+        return tabular
+
     return convert_sheet(ws, year=year)
+
+
+# テーブル形式CSVのヘッダー検出用キーワード
+_DATE_KEYWORDS = ("日付", "日にち", "勤務日", "出勤日", "date")
+_EMPLOYEE_KEYWORDS = ("指導員名", "従業員名", "スタッフ名", "担当者", "氏名", "名前", "employee", "name")
+_SHIFT_KEYWORDS = ("シフト名", "シフト種別", "シフト", "勤務種別", "勤務区分", "shift")
+
+
+def _detect_tabular_csv(ws):
+    """テーブル形式CSV（1行1レコード）を検出して変換する。
+
+    ヘッダー行に「日付」「従業員名/指導員名」「シフト名」に相当する列が
+    あればテーブル形式と判定する。検出できなければ None を返す。
+    """
+    if ws.max_row < 2:
+        return None
+
+    # 1行目をヘッダーとして検査
+    headers = []
+    for col_idx in range(1, ws.max_column + 1):
+        val = ws.cell(row=1, column=col_idx).value
+        headers.append(str(val).strip() if val else "")
+
+    headers_lower = [h.lower() for h in headers]
+
+    date_col = _find_column(headers_lower, _DATE_KEYWORDS)
+    employee_col = _find_column(headers_lower, _EMPLOYEE_KEYWORDS)
+    shift_col = _find_column(headers_lower, _SHIFT_KEYWORDS)
+
+    if date_col is None or employee_col is None or shift_col is None:
+        return None
+
+    records = []
+    for row_idx in range(2, ws.max_row + 1):
+        date_val = ws.cell(row=row_idx, column=date_col + 1).value
+        employee_val = ws.cell(row=row_idx, column=employee_col + 1).value
+        shift_val = ws.cell(row=row_idx, column=shift_col + 1).value
+
+        if not date_val or not employee_val or not shift_val:
+            continue
+
+        date_str = _normalize_date(date_val, datetime.now().year)
+        if not date_str:
+            date_str = str(date_val).strip()
+
+        records.append({
+            "date": date_str,
+            "employee": str(employee_val).strip(),
+            "shift": str(shift_val).strip(),
+        })
+
+    return records
+
+
+def _find_column(headers, keywords):
+    """ヘッダーリストからキーワードに一致する列のインデックスを返す。"""
+    for i, h in enumerate(headers):
+        for kw in keywords:
+            if kw in h:
+                return i
+    return None
 
 
 def detect_header_row(ws, max_scan=20):

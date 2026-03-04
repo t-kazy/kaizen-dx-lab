@@ -247,6 +247,64 @@ class TestConvertCsvFile:
         assert set(r["employee"] for r in rows) == {"田中太郎", "鈴木花子"}
 
 
+def _create_tabular_csv(tmp_path, filename="test_tabular.csv"):
+    """テスト用のテーブル形式シフトCSVを作成する（1行1レコード）。"""
+    path = tmp_path / filename
+    rows = [
+        ["指導員名", "職種", "日付", "勤務時間(開始)", "勤務時間(終了)", "シフト名"],
+        ["梶井大成", "管理者児童指導員", "2026/4/1", "8:00", "17:00", "早出出勤（8-17）"],
+        ["梶井大成", "管理者児童指導員", "2026/4/2", "9:00", "18:00", "通常出勤（9-18）"],
+        ["梶井大成", "管理者児童指導員", "2026/4/3", "", "", "公休"],
+        ["山田花子", "児童指導員", "2026/4/1", "9:00", "18:00", "通常出勤（9-18）"],
+        ["山田花子", "児童指導員", "2026/4/2", "10:00", "19:00", "遅出出勤（10-19）"],
+    ]
+    with open(path, "w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.writer(f)
+        writer.writerows(rows)
+    return path
+
+
+class TestTabularCsv:
+    def test_detects_tabular_format(self, tmp_path):
+        path = _create_tabular_csv(tmp_path)
+        records = convert_csv_file(path)
+
+        assert len(records) == 5
+        employees = {r["employee"] for r in records}
+        assert employees == {"梶井大成", "山田花子"}
+
+    def test_tabular_date_normalized(self, tmp_path):
+        path = _create_tabular_csv(tmp_path)
+        records = convert_csv_file(path)
+
+        dates = {r["date"] for r in records}
+        assert "2026-04-01" in dates
+        assert "2026-04-02" in dates
+
+    def test_tabular_shift_names_preserved(self, tmp_path):
+        path = _create_tabular_csv(tmp_path)
+        records = convert_csv_file(path)
+
+        shifts = {r["shift"] for r in records}
+        assert "早出出勤（8-17）" in shifts
+        assert "公休" in shifts
+
+    def test_tabular_csv_to_flat_csv(self, tmp_path):
+        """テーブル形式CSV → フラットCSV出力の流れをテスト。"""
+        csv_input = _create_tabular_csv(tmp_path)
+        csv_output = tmp_path / "output.csv"
+
+        records = convert_csv_file(csv_input)
+        write_csv(records, csv_output)
+
+        with open(csv_output, encoding="utf-8-sig") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        assert len(rows) == 5
+        assert set(rows[0].keys()) == {"date", "employee", "shift"}
+
+
 class TestEndToEnd:
     def test_excel_to_csv_roundtrip(self, tmp_path):
         """Excel生成 → 変換 → CSV読み込みの一連の流れをテスト。"""
