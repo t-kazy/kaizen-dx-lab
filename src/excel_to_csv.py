@@ -9,9 +9,10 @@ import argparse
 import csv
 import json
 import sys
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
+import jpholiday
 from openpyxl import load_workbook
 
 
@@ -155,6 +156,22 @@ def load_freee_mapping(mapping_path):
         return json.load(f)
 
 
+def _classify_holiday(date_str):
+    """日付文字列(YYYY-MM-DD)から法定休日/法定外休日を判定する。
+
+    Returns:
+        "法定外休日" if the date is a national holiday (祝日),
+        "法定休日" otherwise (Sundays and Mon-Sat rest days).
+    """
+    try:
+        d = date.fromisoformat(date_str)
+    except (ValueError, TypeError):
+        return "法定休日"
+    if jpholiday.is_holiday(d):
+        return "法定外休日"
+    return "法定休日"
+
+
 def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
     """CSVシフト表をfreee勤怠管理Plus スケジュールCSV形式に変換する。"""
     ws = CsvWorksheet.from_file(csv_path, encoding=encoding)
@@ -164,6 +181,8 @@ def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
     shift_map = mapping.get("shift_map", {})
     time_to_pattern = mapping.get("time_to_pattern", {})
     skip_shifts = set(mapping.get("skip_shifts", []))
+    holiday_shifts = set(mapping.get("holiday_shifts", []))
+    holiday_patterns = mapping.get("holiday_patterns", {})
 
     # ヘッダー検出
     headers = []
@@ -184,6 +203,7 @@ def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
     records = []
     unmapped_employees = set()
     unmapped_shifts = set()
+    missing_holiday_patterns = set()
 
     for row_idx in range(2, ws.max_row + 1):
         date_val = ws.cell(row=row_idx, column=date_col + 1).value
@@ -205,22 +225,32 @@ def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
             unmapped_employees.add(emp_name)
             continue
 
-        # シフト → パターンコード
-        pattern_code = shift_map.get(shift_str)
-        if not pattern_code and start_time_col is not None and end_time_col is not None:
-            start_val = ws.cell(row=row_idx, column=start_time_col + 1).value
-            end_val = ws.cell(row=row_idx, column=end_time_col + 1).value
-            if start_val and end_val:
-                time_key = f"{_normalize_time(start_val)}-{_normalize_time(end_val)}"
-                pattern_code = time_to_pattern.get(time_key)
-        if not pattern_code:
-            unmapped_shifts.add(shift_str)
-            continue
+        # 日付正規化
+        date_iso = _normalize_date(date_val, datetime.now().year)
 
-        # 日付正規化 (freee は YYYY/MM/DD 形式)
-        date_str = _normalize_date(date_val, datetime.now().year)
-        if date_str:
-            date_str = date_str.replace("-", "/")
+        # 休日シフトの処理
+        if shift_str in holiday_shifts:
+            holiday_type = _classify_holiday(date_iso)
+            pattern_code = holiday_patterns.get(holiday_type)
+            if not pattern_code:
+                missing_holiday_patterns.add(holiday_type)
+                continue
+        else:
+            # 通常シフト → パターンコード
+            pattern_code = shift_map.get(shift_str)
+            if not pattern_code and start_time_col is not None and end_time_col is not None:
+                start_val = ws.cell(row=row_idx, column=start_time_col + 1).value
+                end_val = ws.cell(row=row_idx, column=end_time_col + 1).value
+                if start_val and end_val:
+                    time_key = f"{_normalize_time(start_val)}-{_normalize_time(end_val)}"
+                    pattern_code = time_to_pattern.get(time_key)
+            if not pattern_code:
+                unmapped_shifts.add(shift_str)
+                continue
+
+        # 日付フォーマット (freee は YYYY/MM/DD 形式)
+        if date_iso:
+            date_str = date_iso.replace("-", "/")
         else:
             date_str = str(date_val).strip()
 
@@ -234,6 +264,8 @@ def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
         print(f"警告: 従業員 '{name}' のコードが未設定です (スキップ)", file=sys.stderr)
     for shift in sorted(unmapped_shifts):
         print(f"警告: シフト '{shift}' のパターンコードが未設定です (スキップ)", file=sys.stderr)
+    for ht in sorted(missing_holiday_patterns):
+        print(f"警告: '{ht}' のパターンコードが未設定です (config/freee_mapping.json の holiday_patterns を設定してください)", file=sys.stderr)
 
     return records
 

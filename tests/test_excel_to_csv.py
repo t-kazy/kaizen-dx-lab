@@ -11,6 +11,7 @@ from openpyxl import Workbook
 
 from src.excel_to_csv import (
     CsvWorksheet,
+    _classify_holiday,
     convert_csv_file,
     convert_sheet,
     convert_to_freee,
@@ -412,6 +413,139 @@ class TestFreeeConversion:
 
         assert len(records) == 1
         assert records[0]["従業員コード"] == "107"
+
+
+class TestClassifyHoliday:
+    def test_national_holiday_is_legal_off(self):
+        # 2026-01-01 = 元日（祝日）
+        assert _classify_holiday("2026-01-01") == "法定外休日"
+
+    def test_sunday_is_legal_holiday(self):
+        # 2026-03-01 = 日曜
+        assert _classify_holiday("2026-03-01") == "法定休日"
+
+    def test_weekday_rest_is_legal_holiday(self):
+        # 2026-03-04 = 水曜（祝日でない）
+        assert _classify_holiday("2026-03-04") == "法定休日"
+
+    def test_showa_day_is_legal_off(self):
+        # 2026-04-29 = 昭和の日（祝日）
+        assert _classify_holiday("2026-04-29") == "法定外休日"
+
+
+def _create_freee_mapping_with_holidays(tmp_path, filename="freee_mapping.json"):
+    """休日パターン付きのfreeeマッピングファイルを作成する。"""
+    path = tmp_path / filename
+    mapping = {
+        "employee_map": {
+            "梶井大成": "107",
+            "山田花子": "108",
+        },
+        "time_to_pattern": {
+            "8:00-17:00": "早出",
+            "9:00-18:00": "特別1",
+            "10:00-19:00": "通常",
+        },
+        "shift_map": {},
+        "holiday_shifts": ["公休", "休み"],
+        "holiday_patterns": {
+            "法定休日": "法定休日",
+            "法定外休日": "法定外休日",
+        },
+        "skip_shifts": ["有休", "欠勤"],
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(mapping, f, ensure_ascii=False)
+    return path
+
+
+def _create_tabular_csv_with_holidays(tmp_path, filename="test_holiday.csv"):
+    """休日を含むテスト用CSVを作成する。"""
+    path = tmp_path / filename
+    rows = [
+        ["指導員名", "職種", "日付", "勤務時間(開始)", "勤務時間(終了)", "シフト名"],
+        # 2026/4/1 = 水曜（通常日）
+        ["梶井大成", "管理者", "2026/4/1", "8:00", "17:00", "早出出勤（8-17）"],
+        # 2026/4/2 = 木曜 → 公休 → 法定休日
+        ["梶井大成", "管理者", "2026/4/2", "", "", "公休"],
+        # 2026/4/5 = 日曜 → 休み → 法定休日
+        ["梶井大成", "管理者", "2026/4/5", "", "", "休み"],
+        # 2026/4/29 = 昭和の日（祝日）→ 公休 → 法定外休日
+        ["梶井大成", "管理者", "2026/4/29", "", "", "公休"],
+        # 有休はスキップ
+        ["梶井大成", "管理者", "2026/4/3", "", "", "有休"],
+        # 通常出勤
+        ["山田花子", "児童指導員", "2026/4/1", "9:00", "18:00", "通常出勤（9-18）"],
+    ]
+    with open(path, "w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.writer(f)
+        writer.writerows(rows)
+    return path
+
+
+class TestHolidayFreeeConversion:
+    def test_weekday_rest_becomes_legal_holiday(self, tmp_path):
+        """平日の公休 → 法定休日"""
+        csv_path = _create_tabular_csv_with_holidays(tmp_path)
+        mapping_path = _create_freee_mapping_with_holidays(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        apr2 = [r for r in records if r["勤務日"] == "2026/04/02"]
+        assert len(apr2) == 1
+        assert apr2[0]["パターンコード"] == "法定休日"
+
+    def test_sunday_rest_becomes_legal_holiday(self, tmp_path):
+        """日曜の休み → 法定休日"""
+        csv_path = _create_tabular_csv_with_holidays(tmp_path)
+        mapping_path = _create_freee_mapping_with_holidays(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        apr5 = [r for r in records if r["勤務日"] == "2026/04/05"]
+        assert len(apr5) == 1
+        assert apr5[0]["パターンコード"] == "法定休日"
+
+    def test_national_holiday_becomes_non_legal(self, tmp_path):
+        """祝日の公休 → 法定外休日"""
+        csv_path = _create_tabular_csv_with_holidays(tmp_path)
+        mapping_path = _create_freee_mapping_with_holidays(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        apr29 = [r for r in records if r["勤務日"] == "2026/04/29"]
+        assert len(apr29) == 1
+        assert apr29[0]["パターンコード"] == "法定外休日"
+
+    def test_paid_leave_still_skipped(self, tmp_path):
+        """有休は引き続きスキップ"""
+        csv_path = _create_tabular_csv_with_holidays(tmp_path)
+        mapping_path = _create_freee_mapping_with_holidays(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        apr3 = [r for r in records if r["勤務日"] == "2026/04/03"]
+        assert len(apr3) == 0
+
+    def test_normal_shift_still_works(self, tmp_path):
+        """通常シフトは従来通り変換される"""
+        csv_path = _create_tabular_csv_with_holidays(tmp_path)
+        mapping_path = _create_freee_mapping_with_holidays(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        yamada_apr1 = [r for r in records if r["従業員コード"] == "108" and r["勤務日"] == "2026/04/01"]
+        assert len(yamada_apr1) == 1
+        assert yamada_apr1[0]["パターンコード"] == "特別1"
+
+    def test_total_record_count(self, tmp_path):
+        """合計: 通常2件 + 休日3件 = 5件（有休1件スキップ）"""
+        csv_path = _create_tabular_csv_with_holidays(tmp_path)
+        mapping_path = _create_freee_mapping_with_holidays(tmp_path)
+
+        records = convert_to_freee(csv_path, mapping_path)
+
+        assert len(records) == 5
 
 
 class TestEndToEnd:
