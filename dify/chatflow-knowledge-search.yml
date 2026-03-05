@@ -235,7 +235,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 全体"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_01"]  # ← 実際のIDに置換
+          dataset_ids: ["c7a4c237-6b44-456d-b995-14f4d8885abd"]  # ← 実際のIDに置換
           retrieval_mode: "multiple"
           multiple_retrieval_config: &search_config
             top_k: 5
@@ -253,7 +253,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 送迎(行き)"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_02"]
+          dataset_ids: ["946053fb-08ed-4133-9a59-9ca8e1d962e6"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -262,7 +262,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 来所時"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_03"]
+          dataset_ids: ["ea16561c-9123-4c3d-a50b-c2a0cfecb613"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -271,7 +271,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 宿題"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_04"]
+          dataset_ids: ["73a875aa-30f8-4d6c-8c81-882b8f316ea1"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -280,7 +280,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: おやつ・食事提供"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_05"]
+          dataset_ids: ["34531c94-6fef-4e1e-b49e-ea02223b5087"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -289,7 +289,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 遊び(自由時間)"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_06"]
+          dataset_ids: ["2fc1f8b9-27c2-4b26-926a-227df6304425"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -298,7 +298,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: はじまりの会"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_07"]
+          dataset_ids: ["a157a2e3-bfcc-45c7-98db-4c0c68bdafbd"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -307,7 +307,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 活動"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_08"]
+          dataset_ids: ["434dda81-c921-48d9-9085-4a7ebe8f11be"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -316,7 +316,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: おわりの会"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_09"]
+          dataset_ids: ["bfdcb303-b8ba-4f84-880f-c2f62c7acaf6"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -325,7 +325,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 送迎(帰り)"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_10"]
+          dataset_ids: ["0f90ae34-915b-4c11-82ac-43865dbc28c8"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -334,7 +334,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 活動準備"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_11"]
+          dataset_ids: ["e764981d-6656-4e67-a74b-39f4e199b490"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -343,7 +343,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 掃除・点検"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_12"]
+          dataset_ids: ["8a041846-43c7-43ff-b899-3f38a64faf02"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
@@ -352,7 +352,7 @@ workflow:
           type: "knowledge-retrieval"
           title: "検索: 活動記録"
           query_variable_selector: ["start", "sys.query"]
-          dataset_ids: ["YOUR_DATASET_ID_13"]
+          dataset_ids: ["08c07497-aa07-482b-a52e-faed117740f2"]
           retrieval_mode: "multiple"
           multiple_retrieval_config: *search_config
 
