@@ -1,17 +1,22 @@
 # Dify チャットフロー DSLテンプレート
-# ナレッジ検索最適化版
+# カテゴリ選択型ナレッジ検索
+#
+# フロー:
+#   1. ユーザーが13カテゴリから1つ選択
+#   2. 質問を入力
+#   3. 選択カテゴリのナレッジのみ検索 → LLMで回答生成
 #
 # 使い方:
-#   1. Difyの「スタジオ」→「DSLファイルをインポート」でこのファイルを読み込む
-#   2. ナレッジ検索ノードで自分のナレッジデータセットを選択する
-#   3. LLMノードでモデルを選択する
-#   4. デバッグモードでテストする
+#   1. Difyの「スタジオ」→「DSLファイルをインポート」で読み込む
+#   2. 各ナレッジ検索ノードで実際のナレッジデータセットを選択
+#   3. LLMノードでモデルを選択
+#   4. デバッグモードでテスト
 #
 # 注意: dataset_ids は実際のナレッジIDに置き換えてください
 
 app:
-  name: "社内ナレッジ検索チャット"
-  description: "13個の社内ナレッジMDファイルを横断検索して回答するチャットフロー"
+  name: "社内ナレッジ検索チャット（カテゴリ選択型）"
+  description: "13カテゴリから選択して、該当ナレッジを検索・回答するチャットフロー"
   mode: "advanced-chat"
   icon: "🔍"
   icon_background: "#E4FBCC"
@@ -23,89 +28,378 @@ workflow:
   graph:
     nodes:
       # ========================================
-      # 開始ノード
+      # 開始ノード（カテゴリ選択 + 質問入力）
       # ========================================
       - id: "start"
         data:
           type: "start"
           title: "開始"
-          variables: []
+          variables:
+            - variable: "category"
+              label: "カテゴリを選択してください"
+              type: "select"
+              required: true
+              options:
+                - value: "01"
+                  label: "会社概要・理念・沿革"
+                - value: "02"
+                  label: "組織・部署"
+                - value: "03"
+                  label: "就業規則・勤怠"
+                - value: "04"
+                  label: "休暇制度"
+                - value: "05"
+                  label: "経費精算・出張"
+                - value: "06"
+                  label: "IT機器・アカウント"
+                - value: "07"
+                  label: "セキュリティポリシー"
+                - value: "08"
+                  label: "コミュニケーションツール"
+                - value: "09"
+                  label: "入社時手続き"
+                - value: "10"
+                  label: "福利厚生"
+                - value: "11"
+                  label: "評価制度・目標設定"
+                - value: "12"
+                  label: "コンプライアンス"
+                - value: "13"
+                  label: "よくある質問（FAQ）"
 
       # ========================================
-      # ナレッジ検索ノード
+      # 条件分岐ノード群（IF/ELSE チェーン）
+      # カテゴリ値に応じて対応する検索ノードへルーティング
       # ========================================
-      - id: "knowledge_retrieval"
+
+      # --- カテゴリ01判定 ---
+      - id: "if_cat_01"
+        data:
+          type: "if-else"
+          title: "カテゴリ01?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "01"
+
+      # --- カテゴリ02判定 ---
+      - id: "if_cat_02"
+        data:
+          type: "if-else"
+          title: "カテゴリ02?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "02"
+
+      # --- カテゴリ03判定 ---
+      - id: "if_cat_03"
+        data:
+          type: "if-else"
+          title: "カテゴリ03?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "03"
+
+      # --- カテゴリ04判定 ---
+      - id: "if_cat_04"
+        data:
+          type: "if-else"
+          title: "カテゴリ04?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "04"
+
+      # --- カテゴリ05判定 ---
+      - id: "if_cat_05"
+        data:
+          type: "if-else"
+          title: "カテゴリ05?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "05"
+
+      # --- カテゴリ06判定 ---
+      - id: "if_cat_06"
+        data:
+          type: "if-else"
+          title: "カテゴリ06?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "06"
+
+      # --- カテゴリ07判定 ---
+      - id: "if_cat_07"
+        data:
+          type: "if-else"
+          title: "カテゴリ07?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "07"
+
+      # --- カテゴリ08判定 ---
+      - id: "if_cat_08"
+        data:
+          type: "if-else"
+          title: "カテゴリ08?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "08"
+
+      # --- カテゴリ09判定 ---
+      - id: "if_cat_09"
+        data:
+          type: "if-else"
+          title: "カテゴリ09?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "09"
+
+      # --- カテゴリ10判定 ---
+      - id: "if_cat_10"
+        data:
+          type: "if-else"
+          title: "カテゴリ10?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "10"
+
+      # --- カテゴリ11判定 ---
+      - id: "if_cat_11"
+        data:
+          type: "if-else"
+          title: "カテゴリ11?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "11"
+
+      # --- カテゴリ12判定 ---
+      - id: "if_cat_12"
+        data:
+          type: "if-else"
+          title: "カテゴリ12?"
+          conditions:
+            - variable_selector:
+                - "start"
+                - "category"
+              comparison_operator: "is"
+              value: "12"
+
+      # --- カテゴリ13（ELSE = 最後のフォールバック） ---
+      # 12まで全てELSEなら13確定
+
+      # ========================================
+      # ナレッジ検索ノード群（×13個）
+      # 各カテゴリに対応するナレッジ1つだけを検索
+      # ========================================
+
+      # --- 検索ノード共通設定 ---
+      # 検索モード: ハイブリッド検索
+      # Top K: 5
+      # Score Threshold: 0.3
+      # セマンティック重み: 0.7 / キーワード重み: 0.3
+
+      - id: "kr_01"
         data:
           type: "knowledge-retrieval"
-          title: "ナレッジ検索"
-          query_variable_selector:
-            - "start"
-            - "sys.query"
-          dataset_ids:
-            # ここに実際のナレッジデータセットIDを設定する
-            # Difyのナレッジ管理画面でIDを確認できる
-            - "YOUR_DATASET_ID_01"
-            - "YOUR_DATASET_ID_02"
-            - "YOUR_DATASET_ID_03"
-            - "YOUR_DATASET_ID_04"
-            - "YOUR_DATASET_ID_05"
-            - "YOUR_DATASET_ID_06"
-            - "YOUR_DATASET_ID_07"
-            - "YOUR_DATASET_ID_08"
-            - "YOUR_DATASET_ID_09"
-            - "YOUR_DATASET_ID_10"
-            - "YOUR_DATASET_ID_11"
-            - "YOUR_DATASET_ID_12"
-            - "YOUR_DATASET_ID_13"
+          title: "検索: 会社概要"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_01"]  # ← 実際のIDに置換
           retrieval_mode: "multiple"
-          multiple_retrieval_config:
-            # ============================================
-            # ★ 検索精度に直結する設定（ここが最重要）
-            # ============================================
-            top_k: 8                    # 取得チャンク数（5〜10推奨）
+          multiple_retrieval_config: &search_config
+            top_k: 5
             score_threshold_enabled: true
-            score_threshold: 0.3        # ★ 0.5以上だと取りこぼし多発。0.3推奨
-            reranking_model:
-              provider: ""              # Rerankモデルのプロバイダ（例: cohere）
-              model: ""                 # Rerankモデル名（例: rerank-multilingual-v3.0）
-            reranking_enable: false     # Rerankモデルがある場合はtrueにする
-            # ハイブリッド検索の重み配分
+            score_threshold: 0.3
+            reranking_enable: false
             weights:
               vector_setting:
-                vector_weight: 0.7      # セマンティック検索の重み
-                embedding_provider_name: ""  # Embeddingプロバイダ
-                embedding_model_name: ""     # Embeddingモデル名
+                vector_weight: 0.7
               keyword_setting:
-                keyword_weight: 0.3     # キーワード検索の重み
+                keyword_weight: 0.3
+
+      - id: "kr_02"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: 組織・部署"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_02"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_03"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: 就業規則・勤怠"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_03"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_04"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: 休暇制度"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_04"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_05"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: 経費精算・出張"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_05"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_06"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: IT機器・アカウント"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_06"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_07"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: セキュリティポリシー"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_07"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_08"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: コミュニケーションツール"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_08"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_09"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: 入社時手続き"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_09"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_10"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: 福利厚生"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_10"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_11"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: 評価制度・目標設定"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_11"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_12"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: コンプライアンス"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_12"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
+
+      - id: "kr_13"
+        data:
+          type: "knowledge-retrieval"
+          title: "検索: FAQ"
+          query_variable_selector: ["start", "sys.query"]
+          dataset_ids: ["YOUR_DATASET_ID_13"]
+          retrieval_mode: "multiple"
+          multiple_retrieval_config: *search_config
 
       # ========================================
       # LLM回答生成ノード
+      # 13個のナレッジ検索ノードすべてから接続
+      # 実際に実行されたノードの出力だけが渡される
       # ========================================
       - id: "llm"
         data:
           type: "llm"
           title: "回答生成"
           model:
-            provider: ""                # モデルプロバイダ（例: openai, anthropic）
-            name: ""                    # モデル名（例: gpt-4o, claude-sonnet-4-20250514）
+            provider: ""       # 例: openai, anthropic
+            name: ""           # 例: gpt-4o, claude-sonnet-4-20250514
             mode: "chat"
             completion_params:
-              temperature: 0.3          # 事実ベースの回答なので低めに設定
+              temperature: 0.3
               max_tokens: 2048
           context:
             enabled: true
             variable_selector:
-              - "knowledge_retrieval"
-              - "result"
+              # 13個すべてのナレッジ検索ノードの出力を接続
+              # 実行されたノードの出力だけがcontextに入る
+              - ["kr_01", "result"]
+              - ["kr_02", "result"]
+              - ["kr_03", "result"]
+              - ["kr_04", "result"]
+              - ["kr_05", "result"]
+              - ["kr_06", "result"]
+              - ["kr_07", "result"]
+              - ["kr_08", "result"]
+              - ["kr_09", "result"]
+              - ["kr_10", "result"]
+              - ["kr_11", "result"]
+              - ["kr_12", "result"]
+              - ["kr_13", "result"]
           prompt_template:
             - role: "system"
               text: |
                 あなたは社内ナレッジに基づいて質問に回答するアシスタントです。
+                ユーザーは「{{#start.category#}}」カテゴリについて質問しています。
 
                 ## ルール
                 1. 提供されたコンテキスト情報のみに基づいて回答してください
-                2. コンテキストに該当する情報がない場合は「該当する情報が見つかりませんでした。質問を変えて再度お試しください。」と正直に伝えてください
-                3. 回答の根拠となるドキュメント名やセクション名を【参照元】として明示してください
+                2. コンテキストに該当する情報がない場合は「選択されたカテゴリ内に該当する情報が見つかりませんでした。別のカテゴリを選択するか、質問を変えてお試しください。」と伝えてください
+                3. 回答の根拠となるセクション名を【参照元】として明示してください
                 4. 推測や外部知識による補完は行わないでください
                 5. 箇条書きや表を使って分かりやすく回答してください
 
@@ -123,11 +417,139 @@ workflow:
           title: "回答"
           answer: "{{#llm.text#}}"
 
+    # ========================================
+    # エッジ（ノード間の接続）
+    # ========================================
     edges:
+      # 開始 → 最初の条件分岐
       - source: "start"
-        target: "knowledge_retrieval"
-      - source: "knowledge_retrieval"
+        target: "if_cat_01"
+
+      # カテゴリ01: TRUE → 検索01, ELSE → 次の判定
+      - source: "if_cat_01"
+        sourceHandle: "true"
+        target: "kr_01"
+      - source: "if_cat_01"
+        sourceHandle: "false"
+        target: "if_cat_02"
+
+      # カテゴリ02
+      - source: "if_cat_02"
+        sourceHandle: "true"
+        target: "kr_02"
+      - source: "if_cat_02"
+        sourceHandle: "false"
+        target: "if_cat_03"
+
+      # カテゴリ03
+      - source: "if_cat_03"
+        sourceHandle: "true"
+        target: "kr_03"
+      - source: "if_cat_03"
+        sourceHandle: "false"
+        target: "if_cat_04"
+
+      # カテゴリ04
+      - source: "if_cat_04"
+        sourceHandle: "true"
+        target: "kr_04"
+      - source: "if_cat_04"
+        sourceHandle: "false"
+        target: "if_cat_05"
+
+      # カテゴリ05
+      - source: "if_cat_05"
+        sourceHandle: "true"
+        target: "kr_05"
+      - source: "if_cat_05"
+        sourceHandle: "false"
+        target: "if_cat_06"
+
+      # カテゴリ06
+      - source: "if_cat_06"
+        sourceHandle: "true"
+        target: "kr_06"
+      - source: "if_cat_06"
+        sourceHandle: "false"
+        target: "if_cat_07"
+
+      # カテゴリ07
+      - source: "if_cat_07"
+        sourceHandle: "true"
+        target: "kr_07"
+      - source: "if_cat_07"
+        sourceHandle: "false"
+        target: "if_cat_08"
+
+      # カテゴリ08
+      - source: "if_cat_08"
+        sourceHandle: "true"
+        target: "kr_08"
+      - source: "if_cat_08"
+        sourceHandle: "false"
+        target: "if_cat_09"
+
+      # カテゴリ09
+      - source: "if_cat_09"
+        sourceHandle: "true"
+        target: "kr_09"
+      - source: "if_cat_09"
+        sourceHandle: "false"
+        target: "if_cat_10"
+
+      # カテゴリ10
+      - source: "if_cat_10"
+        sourceHandle: "true"
+        target: "kr_10"
+      - source: "if_cat_10"
+        sourceHandle: "false"
+        target: "if_cat_11"
+
+      # カテゴリ11
+      - source: "if_cat_11"
+        sourceHandle: "true"
+        target: "kr_11"
+      - source: "if_cat_11"
+        sourceHandle: "false"
+        target: "if_cat_12"
+
+      # カテゴリ12
+      - source: "if_cat_12"
+        sourceHandle: "true"
+        target: "kr_12"
+      - source: "if_cat_12"
+        sourceHandle: "false"
+        target: "kr_13"  # ELSEの最後 = カテゴリ13確定
+
+      # 全検索ノード → LLM
+      - source: "kr_01"
         target: "llm"
+      - source: "kr_02"
+        target: "llm"
+      - source: "kr_03"
+        target: "llm"
+      - source: "kr_04"
+        target: "llm"
+      - source: "kr_05"
+        target: "llm"
+      - source: "kr_06"
+        target: "llm"
+      - source: "kr_07"
+        target: "llm"
+      - source: "kr_08"
+        target: "llm"
+      - source: "kr_09"
+        target: "llm"
+      - source: "kr_10"
+        target: "llm"
+      - source: "kr_11"
+        target: "llm"
+      - source: "kr_12"
+        target: "llm"
+      - source: "kr_13"
+        target: "llm"
+
+      # LLM → 回答
       - source: "llm"
         target: "answer"
 
