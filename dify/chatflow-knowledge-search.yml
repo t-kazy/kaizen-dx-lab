@@ -1,0 +1,146 @@
+# Dify チャットフロー DSLテンプレート
+# ナレッジ検索最適化版
+#
+# 使い方:
+#   1. Difyの「スタジオ」→「DSLファイルをインポート」でこのファイルを読み込む
+#   2. ナレッジ検索ノードで自分のナレッジデータセットを選択する
+#   3. LLMノードでモデルを選択する
+#   4. デバッグモードでテストする
+#
+# 注意: dataset_ids は実際のナレッジIDに置き換えてください
+
+app:
+  name: "社内ナレッジ検索チャット"
+  description: "13個の社内ナレッジMDファイルを横断検索して回答するチャットフロー"
+  mode: "advanced-chat"
+  icon: "🔍"
+  icon_background: "#E4FBCC"
+
+kind: "app"
+version: "0.1.5"
+
+workflow:
+  graph:
+    nodes:
+      # ========================================
+      # 開始ノード
+      # ========================================
+      - id: "start"
+        data:
+          type: "start"
+          title: "開始"
+          variables: []
+
+      # ========================================
+      # ナレッジ検索ノード
+      # ========================================
+      - id: "knowledge_retrieval"
+        data:
+          type: "knowledge-retrieval"
+          title: "ナレッジ検索"
+          query_variable_selector:
+            - "start"
+            - "sys.query"
+          dataset_ids:
+            # ここに実際のナレッジデータセットIDを設定する
+            # Difyのナレッジ管理画面でIDを確認できる
+            - "YOUR_DATASET_ID_01"
+            - "YOUR_DATASET_ID_02"
+            - "YOUR_DATASET_ID_03"
+            - "YOUR_DATASET_ID_04"
+            - "YOUR_DATASET_ID_05"
+            - "YOUR_DATASET_ID_06"
+            - "YOUR_DATASET_ID_07"
+            - "YOUR_DATASET_ID_08"
+            - "YOUR_DATASET_ID_09"
+            - "YOUR_DATASET_ID_10"
+            - "YOUR_DATASET_ID_11"
+            - "YOUR_DATASET_ID_12"
+            - "YOUR_DATASET_ID_13"
+          retrieval_mode: "multiple"
+          multiple_retrieval_config:
+            # ============================================
+            # ★ 検索精度に直結する設定（ここが最重要）
+            # ============================================
+            top_k: 8                    # 取得チャンク数（5〜10推奨）
+            score_threshold_enabled: true
+            score_threshold: 0.3        # ★ 0.5以上だと取りこぼし多発。0.3推奨
+            reranking_model:
+              provider: ""              # Rerankモデルのプロバイダ（例: cohere）
+              model: ""                 # Rerankモデル名（例: rerank-multilingual-v3.0）
+            reranking_enable: false     # Rerankモデルがある場合はtrueにする
+            # ハイブリッド検索の重み配分
+            weights:
+              vector_setting:
+                vector_weight: 0.7      # セマンティック検索の重み
+                embedding_provider_name: ""  # Embeddingプロバイダ
+                embedding_model_name: ""     # Embeddingモデル名
+              keyword_setting:
+                keyword_weight: 0.3     # キーワード検索の重み
+
+      # ========================================
+      # LLM回答生成ノード
+      # ========================================
+      - id: "llm"
+        data:
+          type: "llm"
+          title: "回答生成"
+          model:
+            provider: ""                # モデルプロバイダ（例: openai, anthropic）
+            name: ""                    # モデル名（例: gpt-4o, claude-sonnet-4-20250514）
+            mode: "chat"
+            completion_params:
+              temperature: 0.3          # 事実ベースの回答なので低めに設定
+              max_tokens: 2048
+          context:
+            enabled: true
+            variable_selector:
+              - "knowledge_retrieval"
+              - "result"
+          prompt_template:
+            - role: "system"
+              text: |
+                あなたは社内ナレッジに基づいて質問に回答するアシスタントです。
+
+                ## ルール
+                1. 提供されたコンテキスト情報のみに基づいて回答してください
+                2. コンテキストに該当する情報がない場合は「該当する情報が見つかりませんでした。質問を変えて再度お試しください。」と正直に伝えてください
+                3. 回答の根拠となるドキュメント名やセクション名を【参照元】として明示してください
+                4. 推測や外部知識による補完は行わないでください
+                5. 箇条書きや表を使って分かりやすく回答してください
+
+                ## コンテキスト情報
+                {{#context#}}
+            - role: "user"
+              text: "{{#sys.query#}}"
+
+      # ========================================
+      # 回答ノード
+      # ========================================
+      - id: "answer"
+        data:
+          type: "answer"
+          title: "回答"
+          answer: "{{#llm.text#}}"
+
+    edges:
+      - source: "start"
+        target: "knowledge_retrieval"
+      - source: "knowledge_retrieval"
+        target: "llm"
+      - source: "llm"
+        target: "answer"
+
+# ========================================
+# ナレッジデータセット設定メモ
+# ========================================
+# 各ナレッジを作成する際の推奨設定:
+#
+# インデックスモード: 高品質
+# Embeddingモデル: text-embedding-3-small（またはtext-embedding-3-large）
+# チャンク設定:
+#   方式: カスタム
+#   セパレータ: "##"（Markdownの見出し2で分割）
+#   最大チャンクサイズ: 1000トークン
+#   チャンクオーバーラップ: 100トークン
+# 検索方式: ハイブリッド検索（ベクトル + 全文検索）
