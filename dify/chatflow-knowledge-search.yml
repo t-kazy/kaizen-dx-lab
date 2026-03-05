@@ -15,7 +15,7 @@
 # 注意: dataset_ids は実際のナレッジIDに置き換えてください
 
 app:
-  name: "社内ナレッジ検索チャット（カテゴリ選択型）"
+  name: "業務ナレッジ検索チャット（カテゴリ選択型）"
   description: "13カテゴリから選択して、該当ナレッジを検索・回答するチャットフロー"
   mode: "advanced-chat"
   icon: "🔍"
@@ -41,31 +41,31 @@ workflow:
               required: true
               options:
                 - value: "01"
-                  label: "会社概要・理念・沿革"
+                  label: "全体"
                 - value: "02"
-                  label: "組織・部署"
+                  label: "送迎(行き)"
                 - value: "03"
-                  label: "就業規則・勤怠"
+                  label: "来所時"
                 - value: "04"
-                  label: "休暇制度"
+                  label: "宿題"
                 - value: "05"
-                  label: "経費精算・出張"
+                  label: "おやつ・食事提供"
                 - value: "06"
-                  label: "IT機器・アカウント"
+                  label: "遊び(自由時間)"
                 - value: "07"
-                  label: "セキュリティポリシー"
+                  label: "はじまりの会"
                 - value: "08"
-                  label: "コミュニケーションツール"
+                  label: "活動"
                 - value: "09"
-                  label: "入社時手続き"
+                  label: "おわりの会"
                 - value: "10"
-                  label: "福利厚生"
+                  label: "送迎(帰り)"
                 - value: "11"
-                  label: "評価制度・目標設定"
+                  label: "活動準備"
                 - value: "12"
-                  label: "コンプライアンス"
+                  label: "掃除・点検"
                 - value: "13"
-                  label: "よくある質問（FAQ）"
+                  label: "活動記録"
 
       # ========================================
       # 条件分岐ノード群（IF/ELSE チェーン）
@@ -233,7 +233,7 @@ workflow:
       - id: "kr_01"
         data:
           type: "knowledge-retrieval"
-          title: "検索: 会社概要"
+          title: "検索: 全体"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_01"]  # ← 実際のIDに置換
           retrieval_mode: "multiple"
@@ -251,7 +251,7 @@ workflow:
       - id: "kr_02"
         data:
           type: "knowledge-retrieval"
-          title: "検索: 組織・部署"
+          title: "検索: 送迎(行き)"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_02"]
           retrieval_mode: "multiple"
@@ -260,7 +260,7 @@ workflow:
       - id: "kr_03"
         data:
           type: "knowledge-retrieval"
-          title: "検索: 就業規則・勤怠"
+          title: "検索: 来所時"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_03"]
           retrieval_mode: "multiple"
@@ -269,7 +269,7 @@ workflow:
       - id: "kr_04"
         data:
           type: "knowledge-retrieval"
-          title: "検索: 休暇制度"
+          title: "検索: 宿題"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_04"]
           retrieval_mode: "multiple"
@@ -278,7 +278,7 @@ workflow:
       - id: "kr_05"
         data:
           type: "knowledge-retrieval"
-          title: "検索: 経費精算・出張"
+          title: "検索: おやつ・食事提供"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_05"]
           retrieval_mode: "multiple"
@@ -287,7 +287,7 @@ workflow:
       - id: "kr_06"
         data:
           type: "knowledge-retrieval"
-          title: "検索: IT機器・アカウント"
+          title: "検索: 遊び(自由時間)"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_06"]
           retrieval_mode: "multiple"
@@ -296,7 +296,7 @@ workflow:
       - id: "kr_07"
         data:
           type: "knowledge-retrieval"
-          title: "検索: セキュリティポリシー"
+          title: "検索: はじまりの会"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_07"]
           retrieval_mode: "multiple"
@@ -305,7 +305,7 @@ workflow:
       - id: "kr_08"
         data:
           type: "knowledge-retrieval"
-          title: "検索: コミュニケーションツール"
+          title: "検索: 活動"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_08"]
           retrieval_mode: "multiple"
@@ -314,7 +314,7 @@ workflow:
       - id: "kr_09"
         data:
           type: "knowledge-retrieval"
-          title: "検索: 入社時手続き"
+          title: "検索: おわりの会"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_09"]
           retrieval_mode: "multiple"
@@ -323,7 +323,7 @@ workflow:
       - id: "kr_10"
         data:
           type: "knowledge-retrieval"
-          title: "検索: 福利厚生"
+          title: "検索: 送迎(帰り)"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_10"]
           retrieval_mode: "multiple"
@@ -332,7 +332,7 @@ workflow:
       - id: "kr_11"
         data:
           type: "knowledge-retrieval"
-          title: "検索: 評価制度・目標設定"
+          title: "検索: 活動準備"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_11"]
           retrieval_mode: "multiple"
@@ -341,7 +341,7 @@ workflow:
       - id: "kr_12"
         data:
           type: "knowledge-retrieval"
-          title: "検索: コンプライアンス"
+          title: "検索: 掃除・点検"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_12"]
           retrieval_mode: "multiple"
@@ -350,7 +350,7 @@ workflow:
       - id: "kr_13"
         data:
           type: "knowledge-retrieval"
-          title: "検索: FAQ"
+          title: "検索: 活動記録"
           query_variable_selector: ["start", "sys.query"]
           dataset_ids: ["YOUR_DATASET_ID_13"]
           retrieval_mode: "multiple"
@@ -393,7 +393,7 @@ workflow:
           prompt_template:
             - role: "system"
               text: |
-                あなたは社内ナレッジに基づいて質問に回答するアシスタントです。
+                あなたは業務ナレッジに基づいて質問に回答するアシスタントです。
                 ユーザーは「{{#start.category#}}」カテゴリについて質問しています。
 
                 ## ルール
