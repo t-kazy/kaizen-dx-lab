@@ -26,6 +26,6 @@
         "14:00-17:30": "114"
     },
     "shift_map": {},
-    "holiday_shifts": ["公休", "休日", "休み"],
-    "skip_shifts": ["有休", "欠勤"]
+    "holiday_shifts": [],
+    "skip_shifts": ["有休", "欠勤", "公休", "休日", "休み"]
 }
