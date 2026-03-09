@@ -254,7 +254,6 @@ def convert_to_freee(csv_path, mapping_path, encoding="utf-8-sig"):
             "勤務日": date_str,
             "従業員コード": emp_code,
             "パターンコード": pattern_code,
-            "全日休暇": holiday_type,
         })
 
     for name in sorted(unmapped_employees):
@@ -299,7 +298,6 @@ def write_freee_csv(records, output_path, encoding="cp932"):
                 record["勤務日"],
                 record["従業員コード"],
                 record["パターンコード"],
-                record.get("全日休暇", ""),
             ])
     return len(records)
 
