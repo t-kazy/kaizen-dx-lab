@@ -4,16 +4,23 @@ This file provides guidance to Claude Code when working with this repository.
 
 ## Project Overview
 
-kaizen-dx-lab is a new project repository. The tech stack and structure are not yet established.
+kaizen-dx-lab is a multi-agent research team powered by Claude Agent SDK (Python).
 
 ## Repository Structure
 
 ```
 .
+├── CLAUDE.md
 ├── README.md
-└── CLAUDE.md
+├── pyproject.toml
+└── research_team/
+    ├── __init__.py
+    └── main.py          # Orchestrator + subagent definitions
 ```
 
 ## Development
 
-No build, test, or lint tooling is configured yet. Update this section as tooling is added.
+- **Language**: Python 3.10+
+- **Dependencies**: `claude-agent-sdk`, `anyio`
+- **Install**: `pip install -e .`
+- **Run**: `python -m research_team.main "Your research topic here"`

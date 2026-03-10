@@ -1,0 +1,12 @@
+[project]
+name = "kaizen-dx-lab"
+version = "0.1.0"
+description = "Multi-agent research team powered by Claude Agent SDK"
+requires-python = ">=3.10"
+dependencies = [
+    "claude-agent-sdk",
+    "anyio",
+]
+
+[project.scripts]
+research-team = "research_team.main:main"
