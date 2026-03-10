@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="50%" style="stop-color:#16213e"/>
+      <stop offset="100%" style="stop-color:#0f3460"/>
+    </linearGradient>
+    <linearGradient id="roseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560"/>
+      <stop offset="100%" style="stop-color:#c2185b"/>
+    </linearGradient>
+    <linearGradient id="techGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d2ff"/>
+      <stop offset="100%" style="stop-color:#3a7bd5"/>
+    </linearGradient>
+    <linearGradient id="glowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e94560;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#00d2ff;stop-opacity:0.3"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="250" fill="url(#bgGrad)" stroke="#e94560" stroke-width="2"/>
+  <circle cx="256" cy="256" r="245" fill="none" stroke="url(#techGrad)" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- Circuit pattern lines (AI/DX representation) -->
+  <g opacity="0.15" stroke="#00d2ff" stroke-width="1" fill="none">
+    <!-- Horizontal circuits -->
+    <path d="M 60 180 L 140 180 L 155 165"/>
+    <path d="M 60 220 L 120 220 L 135 205"/>
+    <path d="M 357 165 L 372 180 L 452 180"/>
+    <path d="M 377 205 L 392 220 L 452 220"/>
+    <path d="M 60 310 L 120 310 L 135 325"/>
+    <path d="M 60 350 L 140 350 L 155 365"/>
+    <path d="M 357 365 L 372 350 L 452 350"/>
+    <path d="M 377 325 L 392 310 L 452 310"/>
+    <!-- Small dots on circuit endpoints -->
+    <circle cx="60" cy="180" r="2" fill="#00d2ff"/>
+    <circle cx="60" cy="220" r="2" fill="#00d2ff"/>
+    <circle cx="452" cy="180" r="2" fill="#00d2ff"/>
+    <circle cx="452" cy="220" r="2" fill="#00d2ff"/>
+    <circle cx="60" cy="310" r="2" fill="#00d2ff"/>
+    <circle cx="60" cy="350" r="2" fill="#00d2ff"/>
+    <circle cx="452" cy="310" r="2" fill="#00d2ff"/>
+    <circle cx="452" cy="350" r="2" fill="#00d2ff"/>
+  </g>
+
+  <!-- Neural network nodes (AI representation) -->
+  <g filter="url(#glow)" opacity="0.25">
+    <!-- Left nodes -->
+    <circle cx="100" cy="160" r="4" fill="#00d2ff"/>
+    <circle cx="85" cy="256" r="4" fill="#00d2ff"/>
+    <circle cx="100" cy="352" r="4" fill="#00d2ff"/>
+    <!-- Right nodes -->
+    <circle cx="412" cy="160" r="4" fill="#00d2ff"/>
+    <circle cx="427" cy="256" r="4" fill="#00d2ff"/>
+    <circle cx="412" cy="352" r="4" fill="#00d2ff"/>
+    <!-- Connection lines -->
+    <line x1="100" y1="160" x2="170" y2="200" stroke="#00d2ff" stroke-width="0.5"/>
+    <line x1="85" y1="256" x2="170" y2="240" stroke="#00d2ff" stroke-width="0.5"/>
+    <line x1="100" y1="352" x2="170" y2="310" stroke="#00d2ff" stroke-width="0.5"/>
+    <line x1="412" y1="160" x2="342" y2="200" stroke="#00d2ff" stroke-width="0.5"/>
+    <line x1="427" y1="256" x2="342" y2="240" stroke="#00d2ff" stroke-width="0.5"/>
+    <line x1="412" y1="352" x2="342" y2="310" stroke="#00d2ff" stroke-width="0.5"/>
+  </g>
+
+  <!-- Stylized Rose (Fukuyama symbol) - Center -->
+  <g transform="translate(256, 215)" filter="url(#softGlow)">
+    <!-- Outer petals -->
+    <ellipse cx="0" cy="-38" rx="22" ry="32" fill="url(#roseGrad)" opacity="0.7" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-38" rx="22" ry="32" fill="url(#roseGrad)" opacity="0.7" transform="rotate(51.4)"/>
+    <ellipse cx="0" cy="-38" rx="22" ry="32" fill="url(#roseGrad)" opacity="0.7" transform="rotate(102.8)"/>
+    <ellipse cx="0" cy="-38" rx="22" ry="32" fill="url(#roseGrad)" opacity="0.7" transform="rotate(154.3)"/>
+    <ellipse cx="0" cy="-38" rx="22" ry="32" fill="url(#roseGrad)" opacity="0.7" transform="rotate(205.7)"/>
+    <ellipse cx="0" cy="-38" rx="22" ry="32" fill="url(#roseGrad)" opacity="0.7" transform="rotate(257.1)"/>
+    <ellipse cx="0" cy="-38" rx="22" ry="32" fill="url(#roseGrad)" opacity="0.7" transform="rotate(308.5)"/>
+
+    <!-- Middle petals -->
+    <ellipse cx="0" cy="-25" rx="16" ry="22" fill="#e94560" opacity="0.85" transform="rotate(25)"/>
+    <ellipse cx="0" cy="-25" rx="16" ry="22" fill="#e94560" opacity="0.85" transform="rotate(97)"/>
+    <ellipse cx="0" cy="-25" rx="16" ry="22" fill="#e94560" opacity="0.85" transform="rotate(169)"/>
+    <ellipse cx="0" cy="-25" rx="16" ry="22" fill="#e94560" opacity="0.85" transform="rotate(241)"/>
+    <ellipse cx="0" cy="-25" rx="16" ry="22" fill="#e94560" opacity="0.85" transform="rotate(313)"/>
+
+    <!-- Inner petals -->
+    <ellipse cx="0" cy="-14" rx="10" ry="14" fill="#ff6b81" opacity="0.9" transform="rotate(0)"/>
+    <ellipse cx="0" cy="-14" rx="10" ry="14" fill="#ff6b81" opacity="0.9" transform="rotate(72)"/>
+    <ellipse cx="0" cy="-14" rx="10" ry="14" fill="#ff6b81" opacity="0.9" transform="rotate(144)"/>
+    <ellipse cx="0" cy="-14" rx="10" ry="14" fill="#ff6b81" opacity="0.9" transform="rotate(216)"/>
+    <ellipse cx="0" cy="-14" rx="10" ry="14" fill="#ff6b81" opacity="0.9" transform="rotate(288)"/>
+
+    <!-- Rose center -->
+    <circle cx="0" cy="0" r="8" fill="#c2185b"/>
+    <circle cx="0" cy="0" r="4" fill="#e94560"/>
+
+    <!-- Digital overlay on rose - hex pattern -->
+    <polygon points="0,-6 5.2,-3 5.2,3 0,6 -5.2,3 -5.2,-3" fill="none" stroke="#00d2ff" stroke-width="0.8" opacity="0.6"/>
+  </g>
+
+  <!-- "AI" text integrated into design -->
+  <g transform="translate(256, 215)" opacity="0.12">
+    <text x="0" y="0" text-anchor="middle" dominant-baseline="central" font-family="'Courier New', monospace" font-size="80" font-weight="bold" fill="#00d2ff">AI</text>
+  </g>
+
+  <!-- Main text: "Fukuyama" -->
+  <text x="256" y="320" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="28" font-weight="300" fill="#ffffff" letter-spacing="6">FUKUYAMA</text>
+
+  <!-- Main text: "AI Salon" -->
+  <text x="256" y="358" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="38" font-weight="700" fill="url(#techGrad)" letter-spacing="3" filter="url(#glow)">AI Salon</text>
+
+  <!-- Subtitle -->
+  <text x="256" y="388" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="11" fill="#aaaacc" letter-spacing="4">DIGITAL TRANSFORMATION</text>
+
+  <!-- Decorative line under text -->
+  <line x1="176" y1="400" x2="336" y2="400" stroke="url(#techGrad)" stroke-width="1" opacity="0.4"/>
+
+  <!-- Location text -->
+  <text x="256" y="420" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="10" fill="#888899" letter-spacing="3">HIROSHIMA, JAPAN</text>
+
+  <!-- Orbiting dots (tech feel) -->
+  <g opacity="0.4">
+    <circle cx="256" cy="105" r="3" fill="#00d2ff" filter="url(#glow)"/>
+    <circle cx="370" cy="140" r="2" fill="#e94560" filter="url(#glow)"/>
+    <circle cx="142" cy="140" r="2" fill="#e94560" filter="url(#glow)"/>
+    <circle cx="400" cy="256" r="2.5" fill="#00d2ff" filter="url(#glow)"/>
+    <circle cx="112" cy="256" r="2.5" fill="#00d2ff" filter="url(#glow)"/>
+    <circle cx="370" cy="390" r="2" fill="#e94560" filter="url(#glow)"/>
+    <circle cx="142" cy="390" r="2" fill="#e94560" filter="url(#glow)"/>
+  </g>
+
+  <!-- Thin orbit ring -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#glowGrad)" stroke-width="0.5" stroke-dasharray="4 8"/>
+</svg>
