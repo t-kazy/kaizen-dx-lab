@@ -20,9 +20,9 @@ Step 0            Step 1          Step 2           Step 3            Step 4
 社長の頭を      → 置き場を作る  → 日常業務から    → ナレッジを      → AIが答える
 AIで引き出す                      自然に貯まる       整理・検索可能に
 
-録音+AI文字起こし  Google Drive    Google Forms     NotebookLM        Dify
-ChatGPT/Claude                    Google Sheets                      チャットボット
-Gemini(文字起こし)                 Google Chat
+Plaud(録音+文字    Google Drive    Google Forms     NotebookLM        Dify
+起こし+要約)                       Google Sheets                      チャットボット
+ChatGPT/Claude                    Google Chat
 
 [Week 1-3]        [Week 1-2]     [Week 3〜]       [Month 2〜]       [Month 2-3〜]
 ```
@@ -36,9 +36,10 @@ Gemini(文字起こし)                 Google Chat
 録音 → AI文字起こし → AI構造化で、社長の拘束時間は合計3〜4時間。
 
 ### やること
-1. 社長インタビュー2回（90分 + 60分）を録音
-2. Geminiで文字起こし
-3. ChatGPT / Claudeで FAQ・業務フロー・安全ルールに構造化
+1. 社長インタビュー2回（90分 + 60分）をPlaudで録音
+2. Plaudが自動で文字起こし＋要約＋マインドマップ生成
+3. エクスポート（文字起こし→TXT、要約→Markdown）
+4. ChatGPT / Claudeで FAQ・業務フロー・安全ルールに構造化
 
 ### 期待アウトプット
 - FAQ 30〜50件
