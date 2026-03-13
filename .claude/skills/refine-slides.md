@@ -1,101 +1,101 @@
-# /refine-slides - Slide Design Review & Refinement
+# /refine-slides - スライドデザインレビューと改善
 
-Review and improve an existing slide deck for design quality, content impact, and visual consistency.
+既存のスライドデッキをデザイン品質、コンテンツのインパクト、視覚的一貫性の観点からレビューし改善する。
 
-## Usage
-
-```
-/refine-slides [path-to-slide-file]
-```
-
-## Skill Instructions
-
-### Step 1: Read the Slide File
-
-Read the specified HTML slide file completely.
-
-### Step 2: Design Audit
-
-Evaluate each slide against this checklist and report findings:
-
-#### Layout & Composition
-- [ ] Every slide has ONE clear focal point
-- [ ] No slide uses more than 60% of its area
-- [ ] Consecutive slides use different layout types
-- [ ] Grid layouts are properly aligned
-- [ ] Whitespace is generous (padding >= `var(--space-xl)`)
-
-#### Typography
-- [ ] `heading-hero` used only on cover
-- [ ] Titles are 6-8 words max
-- [ ] Body text uses `body-lg` or `body-base` (never raw `<p>`)
-- [ ] `.caption` used for labels/metadata
-- [ ] `.text-gradient` used max 2-3 times in entire deck
-- [ ] No orphaned single words on a line (check for `<br>` wrapping)
-
-#### Visual Consistency
-- [ ] Cards use consistent border-radius and padding
-- [ ] Icon circles are present on card-heavy slides
-- [ ] Decorative elements (`.bg-noise`, `.bg-grid`, `.bg-blob`) are applied correctly
-- [ ] Color usage follows theme palette (no hardcoded colors outside theme)
-- [ ] `.divider-gradient` separates heading from content where appropriate
-
-#### Content Quality
-- [ ] Headlines are action-oriented / impactful (not generic)
-- [ ] Bullet points <= 4 per slide, each <= 12 words
-- [ ] Metrics use `.metric` component (not plain text)
-- [ ] Numbers are contextualized ("3.2x faster" not "3.2x")
-- [ ] Logical flow from slide to slide
-
-#### Structure
-- [ ] Deck starts with cover slide
-- [ ] Agenda/overview slide follows cover
-- [ ] Section dividers separate major topics
-- [ ] Summary slide near the end
-- [ ] Next steps / timeline before closing
-- [ ] Closing slide is last
-- [ ] Page numbers on all slides except cover
-
-#### Technical
-- [ ] Single self-contained HTML file (no external CSS links)
-- [ ] Google Fonts loaded correctly
-- [ ] Keyboard navigation works
-- [ ] Touch/click navigation included
-- [ ] Progress bar present
-
-### Step 3: Generate Report
-
-Present findings as:
+## 使い方
 
 ```
-## Slide Deck Review: {filename}
+/refine-slides [スライドファイルのパス]
+```
 
-### Score: {X}/100
+## スキル手順
 
-### Strengths
+### ステップ 1: スライドファイルの読み込み
+
+指定されたHTMLスライドファイルを完全に読み込む。
+
+### ステップ 2: デザイン監査
+
+以下のチェックリストに基づいて各スライドを評価し、結果を報告する：
+
+#### レイアウトと構図
+- [ ] すべてのスライドに明確なフォーカルポイントが1つある
+- [ ] 面積の60%以上を使用しているスライドがない
+- [ ] 連続するスライドで異なるレイアウトタイプを使用している
+- [ ] グリッドレイアウトが適切に整列している
+- [ ] 余白が十分にある（padding >= `var(--space-xl)`）
+
+#### タイポグラフィ
+- [ ] `heading-hero` はカバーのみで使用されている
+- [ ] タイトルが最大6〜8単語以内
+- [ ] 本文テキストが `body-lg` または `body-base` を使用している（素の `<p>` は不可）
+- [ ] ラベル/メタデータに `.caption` が使用されている
+- [ ] `.text-gradient` はデッキ全体で最大2〜3回の使用に留まっている
+- [ ] 孤立した単語が行末に残っていない（`<br>` による折り返しを確認）
+
+#### 視覚的一貫性
+- [ ] カードのborder-radiusとpaddingが統一されている
+- [ ] カードが多いスライドにアイコンサークルが配置されている
+- [ ] 装飾要素（`.bg-noise`、`.bg-grid`、`.bg-blob`）が正しく適用されている
+- [ ] テーマパレットに沿った色使い（テーマ外のハードコードされた色がない）
+- [ ] 適切な箇所で `.divider-gradient` が見出しとコンテンツを区切っている
+
+#### コンテンツ品質
+- [ ] 見出しがアクション指向/インパクトのある表現になっている（ありきたりでない）
+- [ ] 箇条書きが1スライドあたり4つ以下、各12単語以内
+- [ ] メトリクスに `.metric` コンポーネントが使用されている（プレーンテキストでない）
+- [ ] 数値に文脈がある（「3.2倍」ではなく「3.2倍高速化」）
+- [ ] スライド間の論理的な流れがある
+
+#### 構成
+- [ ] デッキがカバースライドで始まっている
+- [ ] カバーの次にアジェンダ/概要スライドがある
+- [ ] 主要トピック間にセクション区切りがある
+- [ ] 終盤にサマリースライドがある
+- [ ] クロージングの前にネクストステップ/タイムラインがある
+- [ ] クロージングスライドが最後にある
+- [ ] カバー以外のすべてのスライドにページ番号がある
+
+#### 技術要件
+- [ ] 単一の自己完結型HTMLファイル（外部CSSリンクなし）
+- [ ] Google Fontsが正しく読み込まれている
+- [ ] キーボードナビゲーションが動作する
+- [ ] タッチ/クリックナビゲーションが含まれている
+- [ ] プログレスバーが存在する
+
+### ステップ 3: レポート生成
+
+以下の形式で結果を提示する：
+
+```
+## スライドデッキレビュー: {ファイル名}
+
+### スコア: {X}/100
+
+### 優れている点
 - ...
 
-### Issues Found
-| # | Slide | Severity | Issue | Fix |
-|---|-------|----------|-------|-----|
-| 1 | 3     | High     | ...   | ... |
+### 検出された問題
+| # | スライド | 重要度 | 問題 | 修正方法 |
+|---|----------|--------|------|----------|
+| 1 | 3        | 高     | ...  | ...      |
 
-### Recommendations
+### 改善提案
 1. ...
 ```
 
-### Step 4: Apply Fixes
+### ステップ 4: 修正の適用
 
-Ask the user: "Would you like me to apply the fixes automatically?"
+ユーザーに確認する：「自動で修正を適用しますか？」
 
-If yes, edit the file to fix all issues found. Prioritize:
-1. **High severity**: Broken layouts, missing structure, unreadable text
-2. **Medium severity**: Inconsistent styling, missing decorative elements
-3. **Low severity**: Content wording, minor spacing tweaks
+はいの場合、検出されたすべての問題を修正する。優先順位：
+1. **重要度 高**: レイアウト崩れ、構成の欠如、読めないテキスト
+2. **重要度 中**: スタイルの不整合、装飾要素の不足
+3. **重要度 低**: コンテンツの表現、軽微なスペース調整
 
-### Step 5: Before/After
+### ステップ 5: ビフォー/アフター
 
-After applying fixes, summarize what changed:
-- Number of slides modified
-- Key improvements made
-- Remaining suggestions that require user input (e.g., content changes)
+修正適用後、変更内容をまとめる：
+- 修正したスライド数
+- 主な改善点
+- ユーザーの入力が必要な残りの提案（例：コンテンツの変更）

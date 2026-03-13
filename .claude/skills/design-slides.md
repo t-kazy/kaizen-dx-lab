@@ -1,153 +1,153 @@
-# /design-slides - Premium Client Slide Generator
+# /design-slides - プレミアム クライアント向けスライド生成
 
-Generate high-quality, design-focused HTML slide decks for client presentations.
+クライアントプレゼンテーション用の高品質でデザイン重視のHTMLスライドデッキを生成する。
 
-## Usage
-
-```
-/design-slides [topic or brief description]
-```
-
-## Skill Instructions
-
-When this skill is invoked, generate a complete, self-contained HTML slide deck by following these rules precisely.
-
-### Step 1: Understand the Brief
-
-Ask the user if they haven't provided enough context:
-- **Topic / proposal theme** (e.g., "DX transformation proposal for retail client")
-- **Audience** (e.g., CTO, board members, marketing team)
-- **Tone** (e.g., bold & visionary, calm & professional, data-driven)
-- **Approximate slide count** (default: 12-18 slides)
-- **Theme preference** (midnight-indigo / arctic-frost / obsidian-ember)
-
-If the user gives a one-line brief, infer reasonable defaults and proceed.
-
-### Step 2: Choose Theme & Reference Template
-
-Read the base template and chosen theme:
-- `templates/slide-base.html` - the HTML skeleton and CSS design system
-- `templates/themes/{theme}.css` - the color/style theme
-
-The generated deck MUST be a **single self-contained HTML file** that inlines ALL CSS (both the base design system and the theme) so the file works standalone when opened in a browser. Do NOT use external CSS `<link>` references — inline everything inside `<style>` tags.
-
-### Step 3: Slide Architecture
-
-Every deck MUST follow this structure:
+## 使い方
 
 ```
-1. COVER SLIDE        — Title + subtitle + company/date. Full visual impact.
-2. AGENDA / OVERVIEW  — 3-5 key topics as a visual roadmap.
-3-N. CONTENT SLIDES   — The substance (see slide type catalog below).
-N+1. SUMMARY          — Key takeaways in 3-5 bullets.
-N+2. NEXT STEPS       — Timeline or action items.
-N+3. CLOSING          — Thank you / contact / CTA.
+/design-slides [トピックまたは簡単な説明]
 ```
 
-### Step 4: Slide Type Catalog
+## スキル手順
 
-Use a VARIETY of these slide types across the deck. **Never use the same layout for consecutive slides.**
+このスキルが呼び出されたら、以下のルールに厳密に従い、完全な自己完結型HTMLスライドデッキを生成する。
 
-| Slide Type | CSS Class | When to Use |
+### ステップ 1: ブリーフの理解
+
+ユーザーが十分なコンテキストを提供していない場合は確認する：
+- **トピック / 提案テーマ**（例：「小売業クライアント向けDX変革提案」）
+- **対象者**（例：CTO、取締役、マーケティングチーム）
+- **トーン**（例：大胆＆ビジョナリー、落ち着き＆プロフェッショナル、データドリブン）
+- **おおよそのスライド枚数**（デフォルト：12〜18枚）
+- **テーマ選択**（midnight-indigo / arctic-frost / obsidian-ember）
+
+ユーザーが一行の簡単な説明のみ提供した場合は、妥当なデフォルトを推測して進める。
+
+### ステップ 2: テーマ選択とテンプレート参照
+
+ベーステンプレートと選択したテーマを読み込む：
+- `templates/slide-base.html` - HTMLスケルトンとCSSデザインシステム
+- `templates/themes/{theme}.css` - カラー/スタイルテーマ
+
+生成するデッキは、すべてのCSS（ベースデザインシステムとテーマの両方）をインラインで含む**単一の自己完結型HTMLファイル**でなければならない。ブラウザで単体で開けるようにする。外部CSS `<link>` 参照は使用せず、すべてを `<style>` タグ内にインラインで記述すること。
+
+### ステップ 3: スライド構成
+
+すべてのデッキは以下の構成に従うこと：
+
+```
+1. カバースライド      — タイトル + サブタイトル + 企業名/日付。視覚的インパクト最大。
+2. アジェンダ / 概要   — 3〜5つの主要トピックをビジュアルロードマップとして表示。
+3-N. コンテンツスライド — 本題（以下のスライドタイプカタログを参照）。
+N+1. サマリー          — 3〜5つの箇条書きで重要なポイントをまとめる。
+N+2. ネクストステップ   — タイムラインまたはアクションアイテム。
+N+3. クロージング      — お礼 / 連絡先 / CTA。
+```
+
+### ステップ 4: スライドタイプカタログ
+
+デッキ全体でこれらのスライドタイプを多様に使い分けること。**連続するスライドで同じレイアウトを使用してはならない。**
+
+| スライドタイプ | CSSクラス | 使用場面 |
 |---|---|---|
-| Cover | `slide-cover` | Opening slide with hero typography |
-| Section Divider | `slide-section` | Full-accent-gradient separator between topics |
-| Two Column | `grid-2` | Comparing, before/after, text + visual |
-| Three Cards | `grid-3` | Features, pillars, options |
-| Four Cards | `grid-4` | Metrics dashboard, multi-KPI |
-| 2:1 Split | `grid-2-1` | Main content + sidebar |
-| 1:2 Split | `grid-1-2` | Sidebar + main content |
-| Big Number / KPI | Use `.metric` components | Impact metrics, ROI |
-| Timeline | Use `.timeline` component | Roadmap, phasing |
-| Numbered List | Use `.numbered-list` | Process, steps |
-| Quote / Callout | Centered large text | Powerful statement |
-| Closing | `slide-closing` | End slide with CTA |
+| カバー | `slide-cover` | ヒーロータイポグラフィのオープニングスライド |
+| セクション区切り | `slide-section` | トピック間のアクセントグラデーション区切り |
+| 2カラム | `grid-2` | 比較、ビフォー/アフター、テキスト+ビジュアル |
+| 3カード | `grid-3` | 機能、柱、オプション |
+| 4カード | `grid-4` | メトリクスダッシュボード、複数KPI |
+| 2:1 分割 | `grid-2-1` | メインコンテンツ + サイドバー |
+| 1:2 分割 | `grid-1-2` | サイドバー + メインコンテンツ |
+| 大きな数値 / KPI | `.metric` コンポーネント使用 | インパクトメトリクス、ROI |
+| タイムライン | `.timeline` コンポーネント使用 | ロードマップ、フェーズ分け |
+| 番号付きリスト | `.numbered-list` 使用 | プロセス、ステップ |
+| 引用 / コールアウト | 中央揃えの大きなテキスト | インパクトのある一文 |
+| クロージング | `slide-closing` | CTAを含む最終スライド |
 
-### Step 5: Design Principles (CRITICAL)
+### ステップ 5: デザイン原則（重要）
 
-Follow these rules to ensure slides look premium, NOT generic:
+スライドがプレミアムに見え、ありきたりにならないよう、以下のルールを厳守する：
 
-#### Typography
-- Use `heading-hero` (120px) ONLY on the cover slide
-- Use `heading-1` or `heading-2` for slide titles
-- Titles should be SHORT and impactful (max 6-8 words)
-- Body text should be `body-lg` or `body-base` — never smaller than `body-sm`
-- Use `.text-gradient` sparingly for hero numbers or key phrases
-- Use `.caption` class for labels, categories, and metadata
+#### タイポグラフィ
+- `heading-hero`（120px）はカバースライドのみで使用
+- スライドタイトルには `heading-1` または `heading-2` を使用
+- タイトルは短くインパクトのあるものに（最大6〜8単語）
+- 本文テキストは `body-lg` または `body-base` を使用 — `body-sm` より小さくしない
+- `.text-gradient` はヒーロー数値やキーフレーズに控えめに使用
+- ラベル、カテゴリ、メタデータには `.caption` クラスを使用
 
-#### Visual Hierarchy
-- Every slide must have ONE clear focal point
-- Use whitespace aggressively — never fill more than 60% of the slide area
-- Card content should be concise: 2-3 lines max per card
-- Use `.divider-gradient` to separate heading from content
+#### 視覚的階層
+- すべてのスライドに明確なフォーカルポイントを1つ設ける
+- 余白を積極的に活用 — スライド面積の60%以上を埋めない
+- カードの内容は簡潔に：1カードあたり最大2〜3行
+- 見出しとコンテンツの区切りには `.divider-gradient` を使用
 
-#### Color & Contrast
-- Use accent colors for emphasis, not everywhere
-- Text should have clear contrast against backgrounds
-- Use `.text-muted` for secondary information
-- Use `.text-subtle` for tertiary/metadata
+#### 色とコントラスト
+- アクセントカラーは強調に使い、全面的には使わない
+- テキストは背景に対して明確なコントラストを確保
+- 二次的な情報には `.text-muted` を使用
+- 三次的/メタデータには `.text-subtle` を使用
 
-#### Decorative Elements
-- Add `<div class="bg-grid"></div>` to 30-40% of slides for texture
-- Add `<div class="bg-noise"></div>` to all slides for depth
-- Use `.bg-blob` elements (2 per slide max) on key slides (cover, section, closing)
-- Never overdo decorations — they should be felt, not seen
+#### 装飾要素
+- スライドの30〜40%に `<div class="bg-grid"></div>` を追加してテクスチャを出す
+- すべてのスライドに `<div class="bg-noise"></div>` を追加して奥行きを出す
+- 主要スライド（カバー、セクション、クロージング）に `.bg-blob` 要素を使用（1スライドあたり最大2つ）
+- 装飾はやりすぎない — 感じられるが目立たない程度に
 
-#### Data & Metrics
-- Always use `.metric` component for numbers — never plain text
-- Use `.progress-bar` for percentages
-- Use `.badge` or `.chip` for status/category labels
-- Large numbers are more impactful than paragraphs of text
+#### データとメトリクス
+- 数値には必ず `.metric` コンポーネントを使用 — プレーンテキストは使わない
+- パーセンテージには `.progress-bar` を使用
+- ステータス/カテゴリラベルには `.badge` または `.chip` を使用
+- 長文の段落よりも大きな数値の方がインパクトがある
 
-#### Card Design
-- Alternate between `.card`, `.card-glass`, `.card-elevated`, `.card-outline`
-- Add `.icon-circle` with emoji icons to card headers for visual anchoring
-- Keep card content to heading + 1-2 lines of description
+#### カードデザイン
+- `.card`、`.card-glass`、`.card-elevated`、`.card-outline` を交互に使い分ける
+- カードヘッダーに `.icon-circle` と絵文字アイコンを追加して視覚的なアンカーにする
+- カードの内容は見出し + 1〜2行の説明に留める
 
-### Step 6: Content Quality
+### ステップ 6: コンテンツ品質
 
-- **Headlines**: Write like a designer, not a report author. "Transform How You Ship" > "Digital Transformation Proposal"
-- **Bullet points**: Max 4 per slide. Each under 12 words.
-- **Numbers**: Always contextualize ("3.2x faster" not just "3.2x")
-- **Language**: Match the client's industry jargon where appropriate
-- **Flow**: Each slide should logically lead to the next
+- **見出し**: レポート作成者ではなくデザイナーのように書く。「出荷方法を変革する」 > 「デジタルトランスフォーメーション提案」
+- **箇条書き**: 1スライドあたり最大4つ。各12単語以内。
+- **数値**: 必ず文脈を付ける（「3.2倍」ではなく「デプロイが3.2倍高速化」）
+- **言葉遣い**: クライアントの業界用語を適切に合わせる
+- **流れ**: 各スライドが論理的に次のスライドにつながるようにする
 
-### Step 7: Page Numbers
+### ステップ 7: ページ番号
 
-Add to every slide except cover:
+カバー以外のすべてのスライドに追加：
 ```html
 <span class="page-number">02</span>
 ```
 
-### Step 8: Output
+### ステップ 8: 出力
 
-Write the complete HTML file to:
+完成したHTMLファイルを以下に出力：
 ```
-examples/{descriptive-name}.html
+examples/{説明的な名前}.html
 ```
 
-The file must:
-- Be a single self-contained HTML file (all CSS inlined)
-- Open correctly in any modern browser
-- Support keyboard navigation (arrow keys, space)
-- Support click/tap navigation
-- Support touch swipe on mobile
-- Show a progress bar at the top
-- Display a page counter (bottom-right, appears on hover)
+ファイルの要件：
+- 単一の自己完結型HTMLファイル（すべてのCSSをインライン）
+- モダンブラウザで正しく表示される
+- キーボードナビゲーション対応（矢印キー、スペース）
+- クリック/タップナビゲーション対応
+- モバイルでのタッチスワイプ対応
+- 上部にプログレスバーを表示
+- ページカウンターを表示（右下、ホバー時に表示）
 
-### Step 9: Summary
+### ステップ 9: 完了報告
 
-After generating, tell the user:
-- File path
-- Number of slides
-- Theme used
-- Suggested improvements or variations
+生成後、ユーザーに以下を報告：
+- ファイルパス
+- スライド枚数
+- 使用テーマ
+- 改善提案やバリエーション
 
 ---
 
-## Example Slide HTML Patterns
+## スライドHTMLパターン例
 
-### Cover Slide
+### カバースライド
 ```html
 <section class="slide slide-cover">
   <div class="bg-blob" style="width:600px;height:600px;background:var(--accent-primary);top:-200px;right:-100px;"></div>
@@ -164,68 +164,68 @@ After generating, tell the user:
 </section>
 ```
 
-### KPI / Metrics Slide
+### KPI / メトリクススライド
 ```html
 <section class="slide">
   <div class="bg-noise"></div>
   <div class="slide-inner">
-    <div class="caption text-accent" style="margin-bottom:var(--space-sm);">IMPACT METRICS</div>
-    <h2 class="heading-2" style="margin-bottom:var(--space-lg);">Measurable Results<br>That Drive Growth</h2>
+    <div class="caption text-accent" style="margin-bottom:var(--space-sm);">インパクトメトリクス</div>
+    <h2 class="heading-2" style="margin-bottom:var(--space-lg);">成長を促進する<br>測定可能な成果</h2>
     <div class="divider-gradient" style="margin-bottom:var(--space-xl);"></div>
     <div class="grid-4">
       <div class="card-glass" style="text-align:center;">
         <div class="metric">
           <span class="metric-value">3.2x</span>
-          <span class="metric-label">Faster Deployment</span>
+          <span class="metric-label">デプロイ高速化</span>
           <span class="metric-delta positive">+220%</span>
         </div>
       </div>
-      <!-- repeat for other metrics -->
+      <!-- 他のメトリクスも同様に繰り返す -->
     </div>
   </div>
   <span class="page-number">05</span>
 </section>
 ```
 
-### Three-Card Feature Slide
+### 3カード機能スライド
 ```html
 <section class="slide">
   <div class="bg-grid"></div>
   <div class="bg-noise"></div>
   <div class="slide-inner">
-    <div class="caption text-accent" style="margin-bottom:var(--space-sm);">OUR APPROACH</div>
-    <h2 class="heading-2" style="margin-bottom:var(--space-xl);">Three Pillars of<br>Transformation</h2>
+    <div class="caption text-accent" style="margin-bottom:var(--space-sm);">アプローチ</div>
+    <h2 class="heading-2" style="margin-bottom:var(--space-xl);">変革を支える<br>3つの柱</h2>
     <div class="grid-3">
       <div class="card">
         <div class="icon-circle" style="margin-bottom:var(--space-md);">&#9889;</div>
-        <h3 class="heading-4" style="margin-bottom:var(--space-sm);">Speed</h3>
-        <p class="body-base text-muted">Reduce time-to-market by automating key delivery pipelines.</p>
+        <h3 class="heading-4" style="margin-bottom:var(--space-sm);">スピード</h3>
+        <p class="body-base text-muted">主要なデリバリーパイプラインの自動化でタイム・トゥ・マーケットを短縮。</p>
       </div>
-      <!-- repeat -->
+      <!-- 繰り返す -->
     </div>
   </div>
   <span class="page-number">06</span>
 </section>
 ```
 
-### Timeline Slide
+### タイムラインスライド
 ```html
 <section class="slide">
   <div class="bg-noise"></div>
   <div class="slide-inner">
-    <div class="caption text-accent" style="margin-bottom:var(--space-sm);">ROADMAP</div>
-    <h2 class="heading-2" style="margin-bottom:var(--space-xl);">Implementation<br>Timeline</h2>
+    <div class="caption text-accent" style="margin-bottom:var(--space-sm);">ロードマップ</div>
+    <h2 class="heading-2" style="margin-bottom:var(--space-xl);">実行<br>タイムライン</h2>
     <div class="grid-2">
       <div class="timeline">
         <div class="timeline-item">
-          <div class="caption text-accent">PHASE 01 — Q2 2026</div>
-          <h3 class="heading-4" style="margin-top:var(--space-xs);">Discovery & Assessment</h3>
-          <p class="body-sm text-muted" style="margin-top:var(--space-xs);">Current state analysis and opportunity mapping.</p>
+          <div class="caption text-accent">フェーズ 01 — 2026年 Q2</div>
+          <h3 class="heading-4" style="margin-top:var(--space-xs);">ディスカバリーとアセスメント</h3>
+          <p class="body-sm text-muted" style="margin-top:var(--space-xs);">現状分析と機会のマッピング。</p>
         </div>
-        <!-- repeat -->
+        <!-- 繰り返す -->
       </div>
       <div class="card-glass" style="padding:var(--space-lg);">
-        <!-- Summary or visual -->
+        <!-- サマリーまたはビジュアル -->
       </div>
     </div>
   </div>
@@ -233,14 +233,14 @@ After generating, tell the user:
 </section>
 ```
 
-### Section Divider
+### セクション区切り
 ```html
 <section class="slide slide-section">
   <div class="bg-noise"></div>
   <div class="slide-inner text-center">
     <div class="badge" style="background:rgba(255,255,255,0.15);color:#fff;margin-bottom:var(--space-md);">SECTION 02</div>
-    <h2 class="heading-1">Our Solution</h2>
-    <p class="text-muted body-lg" style="margin-top:var(--space-md);max-width:600px;margin-left:auto;margin-right:auto;">How we will transform your operations end-to-end.</p>
+    <h2 class="heading-1">ソリューション</h2>
+    <p class="text-muted body-lg" style="margin-top:var(--space-md);max-width:600px;margin-left:auto;margin-right:auto;">エンドツーエンドで業務を変革する方法。</p>
   </div>
 </section>
 ```
