@@ -54,6 +54,25 @@ The slide system uses a custom CSS design system with:
 - Always use `.metric` component for numbers
 - Follow the slide structure: Cover → Agenda → Content → Summary → Next Steps → Closing
 
+## Auto-routing Rules
+
+ユーザーのリクエスト内容に応じて、以下のスキルを **自動的に参照・適用** すること。スラッシュコマンドで明示的に呼ばれなくても、該当するキーワードや意図を検知した場合はスキルの手順に従って作業する。
+
+| トリガー（ユーザーの意図） | 適用スキル | スキルファイル |
+|---|---|---|
+| スライド作成、プレゼン資料作成、提案書作成、ピッチデッキ作成、クライアント向け資料 | `/design-slides` | `.claude/skills/design-slides.md` |
+| スライドの改善、デザインレビュー、スライド修正、プレゼンのブラッシュアップ | `/refine-slides` | `.claude/skills/refine-slides.md` |
+
+### 具体的な検知キーワード例
+- **design-slides 発動**: 「スライド作って」「プレゼン作成」「提案資料」「ピッチデッキ」「slide」「presentation」「proposal deck」
+- **refine-slides 発動**: 「スライド直して」「デザイン改善」「レビューして」「ブラッシュアップ」「refine」「improve slides」
+
+### ルーティング手順
+1. ユーザーのメッセージが上記のいずれかに該当するか判定する
+2. 該当する場合、対応するスキルファイルを **必ず Read で読み込んで** から作業を開始する
+3. スキルファイルに記載された全てのステップ・デザイン原則・ルールに厳密に従う
+4. 該当しない場合は通常通り対応する
+
 ## Development
 
 No build tooling required. Slides are pure HTML/CSS/JS and open directly in any modern browser.
