@@ -1,0 +1,150 @@
+/* ============================================================
+   THEME: Obsidian Ember
+   Dark theme with warm orange/amber accents
+   Best for: Creative, startup, bold proposals
+   ============================================================ */
+
+:root {
+  /* Backgrounds */
+  --bg-primary: #0c0a09;
+  --bg-secondary: #1c1917;
+  --bg-tertiary: #292524;
+  --bg-elevated: #1c1917;
+
+  /* Surfaces */
+  --surface-primary: #1c1917;
+  --surface-elevated: #292524;
+  --surface-overlay: rgba(12, 10, 9, 0.9);
+
+  /* Text */
+  --text-primary: #fafaf9;
+  --text-secondary: #a8a29e;
+  --text-tertiary: #78716c;
+  --text-inverse: #0c0a09;
+
+  /* Accent */
+  --accent-primary: #f97316;
+  --accent-secondary: #fb923c;
+  --accent-tertiary: #fdba74;
+  --accent-success: #34d399;
+  --accent-warning: #fbbf24;
+  --accent-danger: #f43f5e;
+  --accent-info: #38bdf8;
+
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, #ea580c 0%, #f97316 50%, #fb923c 100%);
+  --gradient-hero: linear-gradient(135deg, #dc2626 0%, #f97316 50%, #fbbf24 100%);
+  --gradient-surface: linear-gradient(180deg, #1c1917 0%, #0c0a09 100%);
+  --gradient-card: linear-gradient(135deg, rgba(249,115,22,0.06) 0%, rgba(251,146,60,0.02) 100%);
+  --gradient-warm: linear-gradient(135deg, #dc2626 0%, #f97316 100%);
+  --gradient-cool: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+
+  /* Borders */
+  --border-color: rgba(249, 115, 22, 0.15);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.slide {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border-color);
+}
+
+.card-glass {
+  background: rgba(249, 115, 22, 0.04);
+  border-color: rgba(249, 115, 22, 0.1);
+}
+
+.card-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.badge {
+  background: rgba(249, 115, 22, 0.15);
+  color: var(--accent-tertiary);
+}
+
+.badge-success {
+  background: rgba(52, 211, 153, 0.15);
+  color: var(--accent-success);
+}
+
+.chip {
+  background: rgba(249, 115, 22, 0.08);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  color: var(--text-primary);
+}
+
+.icon-circle {
+  background: rgba(249, 115, 22, 0.12);
+  color: var(--accent-primary);
+}
+
+.metric-value {
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-delta.positive { color: var(--accent-success); }
+.metric-delta.negative { color: var(--accent-danger); }
+
+.text-accent { color: var(--accent-primary); }
+.text-accent-2 { color: var(--accent-secondary); }
+.text-gradient {
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-muted { color: var(--text-secondary); }
+.text-subtle { color: var(--text-tertiary); }
+
+.slide-cover {
+  background: var(--bg-primary);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.slide-cover .bg-blob:nth-child(1) {
+  width: 600px; height: 600px;
+  background: var(--accent-primary);
+  top: -200px; right: -100px;
+}
+
+.slide-cover .bg-blob:nth-child(2) {
+  width: 500px; height: 500px;
+  background: #dc2626;
+  bottom: -150px; left: -100px;
+}
+
+.slide-section {
+  background: var(--gradient-accent);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.slide-section .heading-1,
+.slide-section .heading-2 { color: #fff; }
+.slide-section .text-muted { color: rgba(255,255,255,0.75); }
+
+.slide-closing {
+  background: var(--bg-primary);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}

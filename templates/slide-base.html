@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{TITLE}}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="themes/{{THEME}}.css">
+  <style>
+    /* ============================================================
+       SLIDE ENGINE - Core presentation system
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      /* Slide dimensions (16:9) */
+      --slide-w: 1920;
+      --slide-h: 1080;
+      --slide-aspect: calc(var(--slide-w) / var(--slide-h));
+
+      /* Spacing scale */
+      --space-xs: 8px;
+      --space-sm: 16px;
+      --space-md: 32px;
+      --space-lg: 64px;
+      --space-xl: 96px;
+      --space-2xl: 128px;
+
+      /* Typography scale */
+      --text-xs: 14px;
+      --text-sm: 18px;
+      --text-base: 22px;
+      --text-lg: 28px;
+      --text-xl: 36px;
+      --text-2xl: 48px;
+      --text-3xl: 64px;
+      --text-4xl: 80px;
+      --text-5xl: 120px;
+
+      /* Border radius */
+      --radius-sm: 8px;
+      --radius-md: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 32px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08);
+      --shadow-xl: 0 24px 64px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.1);
+
+      /* Transition */
+      --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', 'Noto Sans JP', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ---- Slide Container ---- */
+    .deck {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-xl);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--transition-slow), transform var(--transition-slow);
+      transform: translateX(40px);
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      z-index: 10;
+    }
+
+    .slide.prev {
+      opacity: 0;
+      transform: translateX(-40px);
+    }
+
+    /* ============================================================
+       LAYOUT UTILITIES
+       ============================================================ */
+    .slide-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 100%;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-lg);
+      align-items: center;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-md);
+    }
+
+    .grid-2-1 {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--space-lg);
+      align-items: center;
+    }
+
+    .grid-1-2 {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: var(--space-lg);
+      align-items: center;
+    }
+
+    .flex-col { display: flex; flex-direction: column; }
+    .flex-row { display: flex; flex-direction: row; }
+    .items-center { align-items: center; }
+    .items-start { align-items: flex-start; }
+    .items-end { align-items: flex-end; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-xs { gap: var(--space-xs); }
+    .gap-sm { gap: var(--space-sm); }
+    .gap-md { gap: var(--space-md); }
+    .gap-lg { gap: var(--space-lg); }
+    .gap-xl { gap: var(--space-xl); }
+    .w-full { width: 100%; }
+    .h-full { height: 100%; }
+    .flex-1 { flex: 1; }
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+
+    /* ============================================================
+       TYPOGRAPHY
+       ============================================================ */
+    .heading-hero {
+      font-size: var(--text-5xl);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+    }
+
+    .heading-1 {
+      font-size: var(--text-4xl);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.025em;
+    }
+
+    .heading-2 {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+
+    .heading-3 {
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.015em;
+    }
+
+    .heading-4 {
+      font-size: var(--text-xl);
+      font-weight: 600;
+      line-height: 1.25;
+    }
+
+    .body-lg {
+      font-size: var(--text-lg);
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .body-base {
+      font-size: var(--text-base);
+      font-weight: 400;
+      line-height: 1.6;
+    }
+
+    .body-sm {
+      font-size: var(--text-sm);
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    .caption {
+      font-size: var(--text-xs);
+      font-weight: 500;
+      line-height: 1.4;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .font-light { font-weight: 300; }
+    .font-normal { font-weight: 400; }
+    .font-medium { font-weight: 500; }
+    .font-semibold { font-weight: 600; }
+    .font-bold { font-weight: 700; }
+    .font-black { font-weight: 900; }
+
+    /* ============================================================
+       COMPONENT: CARDS
+       ============================================================ */
+    .card {
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-glass {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+    }
+
+    .card-elevated {
+      background: var(--surface-elevated, #fff);
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .card-outline {
+      border: 2px solid var(--border-color, rgba(255,255,255,0.15));
+      border-radius: var(--radius-lg);
+      padding: var(--space-lg);
+    }
+
+    /* ============================================================
+       COMPONENT: BADGES & CHIPS
+       ============================================================ */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 6px 16px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: 8px 20px;
+      border-radius: var(--radius-full);
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+
+    /* ============================================================
+       COMPONENT: METRICS / KPI
+       ============================================================ */
+    .metric {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+
+    .metric-value {
+      font-size: var(--text-4xl);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .metric-label {
+      font-size: var(--text-sm);
+      font-weight: 500;
+      opacity: 0.7;
+    }
+
+    .metric-delta {
+      font-size: var(--text-sm);
+      font-weight: 600;
+    }
+
+    /* ============================================================
+       COMPONENT: TIMELINE
+       ============================================================ */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+      position: relative;
+      padding-left: var(--space-lg);
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 11px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--accent-primary, #6366f1);
+      opacity: 0.3;
+    }
+
+    .timeline-item {
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: calc(var(--space-lg) * -1 + 4px);
+      top: 8px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent-primary, #6366f1);
+      border: 3px solid var(--bg-primary, #0f0f17);
+    }
+
+    /* ============================================================
+       COMPONENT: PROGRESS BAR
+       ============================================================ */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      border-radius: var(--radius-full);
+      background: rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      border-radius: var(--radius-full);
+      background: var(--gradient-accent, linear-gradient(135deg, #6366f1, #8b5cf6));
+      transition: width var(--transition-slow);
+    }
+
+    /* ============================================================
+       COMPONENT: ICON CIRCLE
+       ============================================================ */
+    .icon-circle {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .icon-circle-lg {
+      width: 96px;
+      height: 96px;
+      font-size: 42px;
+    }
+
+    /* ============================================================
+       COMPONENT: DIVIDER
+       ============================================================ */
+    .divider {
+      width: 80px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--accent-primary, #6366f1);
+    }
+
+    .divider-gradient {
+      width: 120px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--gradient-accent, linear-gradient(135deg, #6366f1, #8b5cf6));
+    }
+
+    /* ============================================================
+       COMPONENT: NUMBERED LIST
+       ============================================================ */
+    .numbered-list {
+      list-style: none;
+      counter-reset: item;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+
+    .numbered-list li {
+      counter-increment: item;
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-md);
+    }
+
+    .numbered-list li::before {
+      content: counter(item, decimal-leading-zero);
+      font-size: var(--text-xl);
+      font-weight: 800;
+      opacity: 0.3;
+      min-width: 48px;
+      line-height: 1.3;
+    }
+
+    /* ============================================================
+       DECORATIVE ELEMENTS
+       ============================================================ */
+    .bg-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(120px);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+    }
+
+    .bg-noise {
+      position: absolute;
+      inset: 0;
+      opacity: 0.025;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+
+    .gradient-line {
+      height: 2px;
+      background: var(--gradient-accent, linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899));
+    }
+
+    /* ============================================================
+       SLIDE NAVIGATION
+       ============================================================ */
+    .slide-nav {
+      position: fixed;
+      bottom: 32px;
+      right: 48px;
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      z-index: 100;
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+
+    .deck:hover .slide-nav {
+      opacity: 1;
+    }
+
+    .slide-counter {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-xs);
+      font-weight: 500;
+      opacity: 0.5;
+    }
+
+    .slide-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 3px;
+      background: var(--gradient-accent, linear-gradient(90deg, #6366f1, #8b5cf6));
+      z-index: 100;
+      transition: width var(--transition-base);
+    }
+
+    /* Page number */
+    .page-number {
+      position: absolute;
+      bottom: var(--space-md);
+      right: var(--space-lg);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: var(--text-xs);
+      font-weight: 500;
+      opacity: 0.3;
+    }
+
+    /* ============================================================
+       PRINT / EXPORT
+       ============================================================ */
+    @media print {
+      .slide {
+        position: relative;
+        page-break-after: always;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        width: 100%;
+        height: 100vh;
+      }
+      .slide-nav, .slide-progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="deck" id="deck">
+    <div class="slide-progress" id="progress"></div>
+
+    <!-- ========== SLIDES GO HERE ========== -->
+    {{SLIDES}}
+    <!-- ========== END SLIDES ========== -->
+
+    <div class="slide-nav">
+      <span class="slide-counter" id="counter"></span>
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const deck = document.getElementById('deck');
+      const slides = [...deck.querySelectorAll('.slide')];
+      const progress = document.getElementById('progress');
+      const counter = document.getElementById('counter');
+      let current = 0;
+
+      function show(index) {
+        slides.forEach((s, i) => {
+          s.classList.remove('active', 'prev');
+          if (i === index) s.classList.add('active');
+          else if (i < index) s.classList.add('prev');
+        });
+        const pct = ((index + 1) / slides.length) * 100;
+        progress.style.width = pct + '%';
+        counter.textContent = `${String(index + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
+        current = index;
+      }
+
+      function next() { if (current < slides.length - 1) show(current + 1); }
+      function prev() { if (current > 0) show(current - 1); }
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') { e.preventDefault(); next(); }
+        if (e.key === 'ArrowLeft' || e.key === 'Backspace') { e.preventDefault(); prev(); }
+        if (e.key === 'Home') { e.preventDefault(); show(0); }
+        if (e.key === 'End') { e.preventDefault(); show(slides.length - 1); }
+      });
+
+      deck.addEventListener('click', (e) => {
+        if (e.clientX > window.innerWidth / 2) next(); else prev();
+      });
+
+      // Touch support
+      let touchStartX = 0;
+      deck.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+      deck.addEventListener('touchend', (e) => {
+        const diff = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(diff) > 50) { diff < 0 ? next() : prev(); }
+      });
+
+      show(0);
+    })();
+  </script>
+</body>
+</html>

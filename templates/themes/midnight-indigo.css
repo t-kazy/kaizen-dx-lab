@@ -1,0 +1,169 @@
+/* ============================================================
+   THEME: Midnight Indigo
+   Premium dark theme with indigo/violet accents
+   Best for: Tech proposals, SaaS, digital transformation
+   ============================================================ */
+
+:root {
+  /* Backgrounds */
+  --bg-primary: #0a0a14;
+  --bg-secondary: #10101f;
+  --bg-tertiary: #16162a;
+  --bg-elevated: #1c1c35;
+
+  /* Surfaces */
+  --surface-primary: #12122a;
+  --surface-elevated: #1a1a38;
+  --surface-overlay: rgba(18, 18, 42, 0.85);
+
+  /* Text */
+  --text-primary: #f0eef6;
+  --text-secondary: #a8a3bf;
+  --text-tertiary: #6b6588;
+  --text-inverse: #0a0a14;
+
+  /* Accent */
+  --accent-primary: #6366f1;
+  --accent-secondary: #8b5cf6;
+  --accent-tertiary: #a78bfa;
+  --accent-success: #22d3ee;
+  --accent-warning: #fbbf24;
+  --accent-danger: #f43f5e;
+  --accent-info: #38bdf8;
+
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a78bfa 100%);
+  --gradient-hero: linear-gradient(135deg, #6366f1 0%, #8b5cf6 30%, #ec4899 100%);
+  --gradient-surface: linear-gradient(180deg, #10101f 0%, #0a0a14 100%);
+  --gradient-card: linear-gradient(135deg, rgba(99,102,241,0.08) 0%, rgba(139,92,246,0.04) 100%);
+  --gradient-warm: linear-gradient(135deg, #f43f5e 0%, #fb923c 100%);
+  --gradient-cool: linear-gradient(135deg, #22d3ee 0%, #6366f1 100%);
+
+  /* Borders */
+  --border-color: rgba(99, 102, 241, 0.15);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.slide {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ---- Themed Components ---- */
+
+.card {
+  background: var(--gradient-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.card-glass {
+  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(99, 102, 241, 0.12);
+}
+
+.card-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-subtle);
+}
+
+.badge {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--accent-tertiary);
+}
+
+.badge-success {
+  background: rgba(34, 211, 238, 0.15);
+  color: var(--accent-success);
+}
+
+.badge-warning {
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--accent-warning);
+}
+
+.chip {
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: var(--text-primary);
+}
+
+.icon-circle {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent-primary);
+}
+
+.metric-value {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-delta.positive { color: var(--accent-success); }
+.metric-delta.negative { color: var(--accent-danger); }
+
+/* Accent text */
+.text-accent { color: var(--accent-primary); }
+.text-accent-2 { color: var(--accent-secondary); }
+.text-gradient {
+  background: var(--gradient-hero);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-muted { color: var(--text-secondary); }
+.text-subtle { color: var(--text-tertiary); }
+
+/* ---- Slide Type Variants ---- */
+
+/* Cover / Title slide */
+.slide-cover {
+  background: var(--bg-primary);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.slide-cover .bg-blob:nth-child(1) {
+  width: 600px; height: 600px;
+  background: var(--accent-primary);
+  top: -200px; right: -100px;
+}
+
+.slide-cover .bg-blob:nth-child(2) {
+  width: 500px; height: 500px;
+  background: #ec4899;
+  bottom: -150px; left: -100px;
+}
+
+/* Section divider */
+.slide-section {
+  background: var(--gradient-accent);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.slide-section .heading-1,
+.slide-section .heading-2 {
+  color: #fff;
+}
+
+.slide-section .text-muted {
+  color: rgba(255,255,255,0.7);
+}
+
+/* Closing slide */
+.slide-closing {
+  background: var(--bg-primary);
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
