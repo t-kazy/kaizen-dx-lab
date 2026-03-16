@@ -12,6 +12,10 @@ kaizen-dx-lab は社内ナレッジを管理するリポジトリです。業務
 .
 ├── README.md
 ├── CLAUDE.md
+├── scripts/
+│   └── sync_to_dify.py     # Dify ナレッジベース同期スクリプト
+├── .github/workflows/
+│   └── sync-dify-knowledge.yml  # docs/ 変更時に Dify へ自動同期
 └── docs/
     ├── README.md          # ナレッジ一覧(インデックス)
     ├── 全体.md
@@ -32,7 +36,8 @@ kaizen-dx-lab は社内ナレッジを管理するリポジトリです。業務
 
 ## Development
 
-No build, test, or lint tooling is configured yet. Update this section as tooling is added.
+- **Dify 同期**: `docs/` を main に push すると GitHub Actions が Dify ナレッジベースへ自動同期
+- **手動同期**: `DIFY_API_KEY` と `DIFY_DATASET_ID` を環境変数にセットして `python scripts/sync_to_dify.py`
 
 ## ナレッジの追加・編集
 
