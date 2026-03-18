@@ -1,0 +1,27 @@
+name: Dify Update Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-dify-document:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check test file exists
+        run: |
+          ls -l
+          test -f "活動.md"
+
+      - name: Update document in Dify
+        run: |
+          curl --fail --request POST \
+            "https://api.dify.ai/v1/datasets/${{ secrets.DIFY_DATASET_ID }}/documents/${{ secrets.DIFY_DOCUMENT_ID_TEST }}/update-by-file" \
+            --header "Authorization: Bearer ${{ secrets.DIFY_API_KEY }}" \
+            --form "file=@活動.md" \
+            --form "indexing_technique=high_quality" \
+            --form "process_rule={\"mode\":\"automatic\"}" \
+            --form "name=活動.md"
