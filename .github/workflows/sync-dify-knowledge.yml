@@ -1,24 +1,136 @@
-name: Sync docs to Dify Knowledge
+name: Sync Dify Knowledge
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
     paths:
-      - "docs/**"
+      - "*.md"
+      - "document-map.json"
   workflow_dispatch:
 
 jobs:
-  sync:
+  sync-dify:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          python-version: "3.12"
+          fetch-depth: 2
 
-      - name: Sync markdown to Dify
+      - name: Detect target markdown files
+        id: detect
+        shell: bash
+        run: |
+          python <<'PY'
+          import json
+          import os
+          import subprocess
+
+          event_name = os.environ.get("GITHUB_EVENT_NAME", "")
+          before = os.environ.get("GITHUB_EVENT_BEFORE", "")
+          after = os.environ.get("GITHUB_SHA", "")
+
+          with open("document-map.json", "r", encoding="utf-8") as f:
+              doc_map = json.load(f)
+
+          mapped_files = set(doc_map.keys())
+
+          targets = []
+
+          if event_name == "workflow_dispatch":
+              targets = sorted(mapped_files)
+          else:
+              if before and before != "0000000000000000000000000000000000000000":
+                  cmd = ["git", "diff", "--name-only", before, after]
+              else:
+                  cmd = ["git", "show", "--name-only", "--pretty=", after]
+
+              changed = subprocess.check_output(cmd, text=True, encoding="utf-8").splitlines()
+              changed = [c.strip() for c in changed if c.strip()]
+
+              for path in changed:
+                  filename = os.path.basename(path)
+                  if filename in mapped_files and os.path.exists(filename):
+                      targets.append(filename)
+
+              targets = sorted(set(targets))
+
+          print("Targets:", targets)
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as out:
+              out.write(f"count={len(targets)}\n")
+              out.write("files_json=" + json.dumps(targets, ensure_ascii=False) + "\n")
+          PY
+        env:
+          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
+
+      - name: Show targets
+        run: |
+          echo "count=${{ steps.detect.outputs.count }}"
+          echo 'files=${{ steps.detect.outputs.files_json }}'
+
+      - name: Sync changed files to Dify
+        if: steps.detect.outputs.count != '0'
+        shell: bash
         env:
           DIFY_API_KEY: ${{ secrets.DIFY_API_KEY }}
           DIFY_DATASET_ID: ${{ secrets.DIFY_DATASET_ID }}
-        run: python scripts/sync_to_dify.py
+          FILES_JSON: ${{ steps.detect.outputs.files_json }}
+        run: |
+          python <<'PY'
+          import json
+          import os
+          import subprocess
+          import sys
+
+          api_key = os.environ["DIFY_API_KEY"]
+          dataset_id = os.environ["DIFY_DATASET_ID"]
+          files = json.loads(os.environ["FILES_JSON"])
+
+          with open("document-map.json", "r", encoding="utf-8") as f:
+              doc_map = json.load(f)
+
+          if not files:
+              print("No target files.")
+              sys.exit(0)
+
+          for filename in files:
+              if filename not in doc_map:
+                  print(f"Skip: {filename} is not in document-map.json")
+                  continue
+
+              if not os.path.exists(filename):
+                  print(f"Skip: {filename} does not exist in repository root")
+                  continue
+
+              document_id = doc_map[filename]
+              url = f"https://api.dify.ai/v1/datasets/{dataset_id}/documents/{document_id}/update-by-file"
+
+              print(f"Updating {filename} -> {document_id}")
+
+              cmd = [
+                  "curl",
+                  "--fail",
+                  "--silent",
+                  "--show-error",
+                  "--request", "POST",
+                  url,
+                  "--header", f"Authorization: Bearer {api_key}",
+                  "--form", f"file=@{filename}",
+                  "--form", "indexing_technique=high_quality",
+                  "--form", 'process_rule={"mode":"automatic"}',
+                  "--form", f"name={filename}",
+              ]
+
+              subprocess.run(cmd, check=True)
+
+          print("Dify sync completed.")
+          PY
+
+      - name: No files to sync
+        if: steps.detect.outputs.count == '0'
+        run: echo "No mapped markdown files changed."
